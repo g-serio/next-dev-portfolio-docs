@@ -1,0 +1,165 @@
+---
+title: "Customizing Header and Footer Navigation Links"
+sidebarTitle: "Navigation"
+description: "Edit src/data/config/menu.json to update your portfolio's header navigation and footer links. Add, remove, or reorder menu items and designate CTA buttons."
+---
+
+All navigation links in your portfolio — both the sticky header navbar and the footer — are driven by a single config file: `src/data/config/menu.json`. You define two named menus inside it (`main` and `footer`), each as a simple array of link objects. Changing the order of items, adding new pages, or removing links never requires touching a component; you only edit the JSON.
+
+## Where the Menu File Lives
+
+```
+src/
+└── data/
+    └── config/
+        └── menu.json   ← edit this file
+```
+
+---
+
+## The Two Menus
+
+`menu.json` contains exactly two top-level keys:
+
+| Key | Rendered in |
+|---|---|
+| `main` | Sticky header navbar |
+| `footer` | Footer link row |
+
+Both follow the same item shape, with one optional extra field available in `main`.
+
+---
+
+## Menu Item Fields
+
+Each item in either array is a plain object with the following fields:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | ✅ | Unique identifier — used as the HTML element key |
+| `label` | string | ✅ | Display text shown to visitors |
+| `href` | string | ✅ | Destination URL, internal path or full external URL |
+| `isCta` | boolean | ➖ | `main` menu only — renders the item as a styled button |
+
+<Note>
+  Every `id` must be unique across the entire file. A good convention is to prefix header items with `nav-` and footer items with `ft-` to avoid collisions.
+</Note>
+
+---
+
+## The `isCta` Property
+
+Setting `isCta: true` on a `main` menu item gives it a button style (filled background, border radius, accent color) instead of a plain text link. Use it for your primary call-to-action — typically a "Contact" or "Hire me" link.
+
+```json
+{ "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
+```
+
+<Tip>
+  Apply `isCta` to only one item at a time. Multiple styled buttons in the navbar compete visually and dilute the call-to-action signal.
+</Tip>
+
+---
+
+## Managing Menu Items
+
+### Adding a New Item
+
+Copy any existing object in the array and update its `id`, `label`, and `href`. Make sure the `id` is unique.
+
+```json
+{
+  "main": [
+    { "id": "nav-about",   "label": "About",   "href": "/about" },
+    { "id": "nav-work",    "label": "Work",    "href": "/work" },
+    { "id": "nav-blog",    "label": "Blog",    "href": "/blog" },
+    { "id": "nav-uses",    "label": "Uses",    "href": "/uses" },   // ← new item
+    { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
+  ]
+}
+```
+
+### Removing an Item
+
+Delete the object from the array entirely. Leave no trailing commas.
+
+```json
+{
+  "main": [
+    { "id": "nav-about",   "label": "About",   "href": "/about" },
+    { "id": "nav-work",    "label": "Work",    "href": "/work" },
+    // "Blog" item removed — the link will no longer appear in the header
+    { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
+  ]
+}
+```
+
+### Reordering Items
+
+Rearrange the objects within the array. The header renders items left-to-right in array order; the footer renders them in the same sequence.
+
+---
+
+## Linking to External Pages
+
+Set `href` to any fully qualified URL to link outside your portfolio. The template renders external links as standard anchor tags.
+
+```json
+{ "id": "nav-github", "label": "GitHub", "href": "https://github.com/yourhandle" }
+```
+
+<Note>
+  External links in the footer are common for pointing to social profiles. However, your **social icons** in the footer (Twitter/X, LinkedIn, GitHub profile icons) are configured separately in `src/data/config/site.json` under `footer.data.social`, not in `menu.json`.
+</Note>
+
+---
+
+## Annotated Full Example
+
+```json
+{
+  "main": [
+    // Standard text links — rendered left-to-right in the header
+    { "id": "nav-about",   "label": "About",   "href": "/about" },
+    { "id": "nav-work",    "label": "Work",    "href": "/work" },
+    { "id": "nav-blog",    "label": "Blog",    "href": "/blog" },
+
+    // isCta: true → rendered as a filled button at the right end of the nav
+    { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
+  ],
+
+  "footer": [
+    // Footer links — typically a condensed subset of the main menu
+    { "id": "ft-work",    "label": "Work",    "href": "/work" },
+    { "id": "ft-blog",    "label": "Blog",    "href": "/blog" },
+    { "id": "ft-contact", "label": "Contact", "href": "/contact" }
+  ]
+}
+```
+
+---
+
+## Applying Your Changes
+
+<Steps>
+  <Step title="Open menu.json">
+    Navigate to `src/data/config/menu.json` in your editor.
+  </Step>
+  <Step title="Edit the arrays">
+    Add, remove, or reorder items in `main` and/or `footer` as needed.
+  </Step>
+  <Step title="Validate JSON">
+    Ensure the file is valid JSON before saving — trailing commas and missing brackets are the most common mistakes.
+  </Step>
+  <Step title="Rebuild or save via Studio">
+    Run your dev server or production build to apply the changes.
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  After editing `menu.json`, the site must be rebuilt (or the dev server must hot-reload the file) for changes to appear. If you're using the Studio editor, saving the file triggers a live preview refresh automatically.
+</Warning>

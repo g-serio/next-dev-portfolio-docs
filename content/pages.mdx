@@ -1,0 +1,196 @@
+---
+title: "Editing Portfolio Pages in next-dev-portfolio"
+sidebarTitle: "Pages"
+description: "Each page in next-dev-portfolio is a JSON file in src/data/pages/. Learn how to edit page metadata, add sections, and control layout settings."
+---
+
+Every page in next-dev-portfolio is defined by a single JSON file inside `src/data/pages/`. Each file declares the page's SEO metadata and an ordered array of sections — typed, data-carrying building blocks that the renderer assembles into the final layout. Editing a page is as simple as updating that JSON file, then rebuilding or letting Studio auto-save the change for you.
+
+## Page File Structure
+
+A page file has four top-level keys:
+
+| Key | Type | Purpose |
+|---|---|---|
+| `id` | `string` | Unique identifier for the page |
+| `slug` | `string` | URL-safe page identifier (e.g. `"home"`, `"about"`) |
+| `meta` | `object` | SEO title and description |
+| `sections` | `array` | Ordered list of section objects rendered on the page |
+
+### The `meta` Object
+
+The `meta` object controls the `<title>` and `<meta name="description">` tags for the page. Keep titles between 50–60 characters and descriptions between 130–155 characters for best SEO results.
+
+```json
+"meta": {
+  "title": "Andrew Linh — Systems Architect & Technical Writer",
+  "description": "Portfolio and writing from a backend engineer focused on structured data platforms, schema design, and developer tooling."
+}
+```
+
+### Sections
+
+Each entry in the `sections` array is an object with three keys:
+
+| Key | Type | Purpose |
+|---|---|---|
+| `id` | `string` | Unique identifier within the page (e.g. `"home-hero-1"`) |
+| `type` | `string` | Section type that maps to a renderer component |
+| `data` | `object` | Content payload; shape depends on the section type |
+| `settings` | `object` | Layout controls such as padding |
+
+### The `settings` Object
+
+The `settings` object lets you adjust the vertical breathing room around any section without touching CSS.
+
+| Field | Accepted values | Default |
+|---|---|---|
+| `paddingTop` | `"sm"`, `"md"`, `"lg"` | `"md"` |
+| `paddingBottom` | `"sm"`, `"md"`, `"lg"` | `"md"` |
+
+```json
+"settings": {
+  "paddingTop": "lg",
+  "paddingBottom": "lg"
+}
+```
+
+## Available Pages
+
+The table below lists every page shipped with next-dev-portfolio, its URL path, and the JSON file you edit to change it.
+
+| Page | URL path | JSON file |
+|---|---|---|
+| Home | `/` | `src/data/pages/home.json` |
+| About | `/about` | `src/data/pages/about.json` |
+| Blog list | `/blog` | `src/data/pages/blog.json` |
+| Blog post detail | `/blog/[slug]` | `src/data/pages/blog/[slug].json` |
+| Work list | `/work` | `src/data/pages/work.json` |
+| Work project detail | `/work/[slug]` | `src/data/pages/work/[slug].json` |
+| Contact | `/contact` | `src/data/pages/contact.json` |
+
+## Available Section Types
+
+| Section type | Used on | Purpose |
+|---|---|---|
+| `home-hero` | Home | Hero with title, highlight text, description, and two CTAs |
+| `page-hero` | About, Blog, Work, Contact | Simpler hero for inner pages |
+| `featured-projects` | Home | Grid of featured project cards |
+| `recent-posts` | Home | Short list of the most recent blog posts |
+| `bio-band` | Home, About | Bio block with portrait image and a CTA |
+| `cta-band` | Any | Full-width call-to-action strip |
+| `about-story` | About | Narrative section with supporting image |
+| `skills-stack` | About | Skills and tools displayed as a grid |
+| `philosophy` | About | Ordered list of guiding principles |
+| `posts-list` | Blog | Full paginated blog listing |
+| `projects-list` | Work | Full work/case-study listing |
+| `post-detail` | Blog/[slug] | Renders a single blog post body |
+| `project-detail` | Work/[slug] | Renders a full project case study |
+| `contact-form` | Contact | Contact form with field configuration |
+| `header` | Global shell | Site-wide header |
+| `footer` | Global shell | Site-wide footer |
+
+## Editing a Page
+
+You can edit pages in two ways:
+
+<Steps>
+  <Step title="Open the JSON file directly">
+    Navigate to `src/data/pages/` in your editor and open the file for the page you want to change (for example, `home.json`). Edit the `meta` fields or the `data` payload of any section, then save.
+  </Step>
+  <Step title="Rebuild to apply changes">
+    Run the build command to bake your updated JSON into `public/`:
+
+    ```bash
+    npm run build
+    ```
+
+    Alternatively, start the development server and view changes live:
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+  <Step title="Or use Studio">
+    Navigate to `/admin` in your running dev server to open the visual Studio editor. Edit sections using the form UI and click **Save**. When **Save2Repo** is active, Studio writes the JSON directly to `src/data/pages/` and triggers an automatic bake — no manual build step required.
+  </Step>
+</Steps>
+
+<Note>
+  After editing JSON files directly (outside Studio), always run `npm run build` before deploying. Studio with Save2Repo active handles this automatically on every save.
+</Note>
+
+## Complete Example: Editing the Home Page Hero
+
+The example below shows a complete `home.json` with a `home-hero` section. The annotated comments explain each field — remember to remove comments before saving, as JSON does not support them.
+
+```json
+{
+  "id": "home-page",
+  "slug": "home",
+  "meta": {
+    "title": "Andrew Linh — Systems Architect & Technical Writer",
+    "description": "Portfolio and editorial site for a backend engineer focused on structured data platforms, schema design, and developer tooling."
+  },
+  "sections": [
+    {
+      "id": "home-hero-1",
+      "type": "home-hero",
+      "data": {
+        "label": "Systems architect · technical writer",
+        "title": "I design backends that stay honest,",
+        "titleHighlight": "then write about why.",
+        "description": "Architecture for structured data platforms, paired with long-form writing on the engineering decisions behind the systems.",
+        "primaryCta": {
+          "id": "cta-work",
+          "label": "View work",
+          "href": "/work",
+          "variant": "primary"
+        },
+        "secondaryCta": {
+          "id": "cta-blog",
+          "label": "Read writing",
+          "href": "/blog",
+          "variant": "secondary"
+        }
+      },
+      "settings": {
+        "paddingTop": "lg",
+        "paddingBottom": "lg"
+      }
+    },
+    {
+      "id": "featured-projects-1",
+      "type": "featured-projects",
+      "data": {
+        "heading": "Selected work",
+        "limit": 3
+      },
+      "settings": {
+        "paddingTop": "md",
+        "paddingBottom": "md"
+      }
+    },
+    {
+      "id": "recent-posts-1",
+      "type": "recent-posts",
+      "data": {
+        "heading": "Recent writing",
+        "limit": 4
+      },
+      "settings": {
+        "paddingTop": "md",
+        "paddingBottom": "lg"
+      }
+    }
+  ]
+}
+```
+
+<Tip>
+  The `titleHighlight` field in a `home-hero` section renders in your accent color. Use it to emphasize the most memorable fragment of your headline — typically a verb phrase or a punchy qualifier.
+</Tip>
+
+<Warning>
+  Every section `id` must be unique within a page. Duplicate IDs cause unpredictable rendering behavior. A safe convention is to suffix the section type with a counter: `"home-hero-1"`, `"cta-band-2"`.
+</Warning>

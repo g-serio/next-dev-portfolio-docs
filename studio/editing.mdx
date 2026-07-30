@@ -1,0 +1,166 @@
+---
+title: "Editing Content Sections and Collections in Studio"
+sidebarTitle: "Editing"
+description: "Use Studio at /admin to edit page sections, blog posts, and case study projects. Changes save as JSON files and commit back to your GitHub repo via Save2Repo."
+---
+
+Studio lets you edit every piece of content in your portfolio without touching code. Page sections, blog posts, and project case studies all have dedicated editing views with form fields derived from their Zod schemas. The steps below walk you through each editing workflow.
+
+## Editing a Page Section
+
+Page sections are the building blocks of each route in your portfolio — home hero, bio band, skills stack, and so on. Each section renders its own form in Studio.
+
+<Steps>
+  <Step title="Open Studio">
+    Navigate to `/admin` on your site. Locally, that's `http://localhost:3000/admin`. On Vercel, use your deployed URL.
+  </Step>
+  <Step title="Select the page you want to edit">
+    Use the sidebar navigation in Studio to choose a page — for example, **Home** or **About**. Studio loads that page's sections in the editor panel.
+  </Step>
+  <Step title="Locate the section">
+    Each section (e.g., `home-hero`, `bio-band`, `skills-stack`) appears as a labelled card with its editable fields listed below it.
+  </Step>
+  <Step title="Edit a field">
+    Click any field and type your changes. Text fields update inline. Image fields open the asset picker so you can enter a URL or upload a file. CTA fields expose `label`, `href`, and `variant` inputs.
+  </Step>
+  <Step title="Save your changes">
+    Click **Save**. In **Save2Repo** mode, Studio commits the updated JSON to your GitHub repo and Vercel triggers a new deployment. In **local mode**, the corresponding file in `src/data/` is written to disk immediately.
+  </Step>
+  <Step title="Verify the update">
+    The page refreshes automatically after saving. Confirm your changes appear as expected in the live preview.
+  </Step>
+</Steps>
+
+### Section Settings
+
+Every section includes a `settings` block that controls its vertical spacing. You'll find these fields at the bottom of each section's form.
+
+| Field           | Values             | Effect                          |
+| --------------- | ------------------ | ------------------------------- |
+| `paddingTop`    | `sm`, `md`, `lg`   | Space above the section         |
+| `paddingBottom` | `sm`, `md`, `lg`   | Space below the section         |
+
+<Tip>
+  Use `lg` padding on standalone feature sections like your hero or work preview to give them visual breathing room. Use `sm` for compact connector sections.
+</Tip>
+
+---
+
+## Editing Blog Posts
+
+Blog posts are managed as a collection. Each post is an entry in `src/data/collections/posts/posts.json`.
+
+<Steps>
+  <Step title="Open the Blog collection">
+    In Studio's sidebar, click **Blog**. You'll see a list of all existing posts.
+  </Step>
+  <Step title="Open a post">
+    Click any post title to open its detail editor. You can edit the following fields:
+
+    - **Title** — the post headline
+    - **Dek** — the subtitle or summary line displayed below the title
+    - **Body** — full Markdown content, including headings, lists, and code blocks
+    - **Tags** — comma-separated topic labels
+    - **Date** — publication date in `YYYY-MM-DD` format
+    - **Image** — cover image `url` and `alt` text
+  </Step>
+  <Step title="Save the post">
+    Click **Save**. In Save2Repo mode, the updated `posts.json` is committed to your repo and a new deployment is triggered.
+  </Step>
+</Steps>
+
+**To add a new post**, click the **New** button in the Blog list view. Studio creates a blank post entry and opens the detail editor. Alternatively, add an entry manually to `src/data/collections/posts/posts.json`:
+
+```json
+{
+  "id": "my-new-post",
+  "title": "My New Post",
+  "dek": "A short summary of what this post covers.",
+  "body": "## Introduction\n\nWrite your full post content here in Markdown.",
+  "tags": ["next.js", "portfolio"],
+  "date": "2024-06-01",
+  "image": {
+    "url": "https://images.unsplash.com/photo-example?w=1600&q=80",
+    "alt": "A descriptive alt text for the cover image"
+  }
+}
+```
+
+<Note>
+  The `body` field accepts full Markdown. You can use headings (`##`, `###`), bullet lists, numbered lists, inline code, fenced code blocks, and blockquotes.
+</Note>
+
+---
+
+## Editing Projects and Case Studies
+
+Projects are managed as a collection stored in `src/data/collections/projects/projects.json`. Each project entry represents a case study with structured content fields.
+
+<Steps>
+  <Step title="Open the Work collection">
+    In Studio's sidebar, click **Work**. You'll see a list of all existing projects.
+  </Step>
+  <Step title="Open a project">
+    Click any project to open its detail editor. Editable fields include:
+
+    - **Title** — the project name
+    - **Context** — background and framing for the project
+    - **Problem** — the challenge or opportunity addressed
+    - **Architecture** — technical design decisions and approach
+    - **Result** — outcomes and impact
+    - **Stack** — technologies used (list of strings)
+    - **Image** — project image `url` and `alt` text
+    - **Featured** — boolean toggle controlling home page visibility
+  </Step>
+  <Step title="Toggle featured visibility">
+    Set `featured` to `true` to display the project in the work preview section on your home page. Set it to `false` to keep it in the full Work listing only.
+  </Step>
+  <Step title="Save the project">
+    Click **Save**. The updated `projects.json` is persisted locally or committed to your repo in Save2Repo mode.
+  </Step>
+</Steps>
+
+---
+
+## Field Reference
+
+Use this reference when filling out content fields across sections and collections.
+
+### Image Fields
+
+Every image field has two required properties:
+
+```json
+{
+  "url": "https://images.unsplash.com/photo-example?w=1600&q=80",
+  "alt": "A developer working at a standing desk"
+}
+```
+
+Both `url` and `alt` are required. Missing `alt` text will cause accessibility and SEO issues.
+
+### CTA Fields
+
+Call-to-action fields expose three properties:
+
+```json
+{
+  "label": "View My Work",
+  "href": "/work",
+  "variant": "primary"
+}
+```
+
+| Property  | Values                    | Description                        |
+| --------- | ------------------------- | ---------------------------------- |
+| `label`   | Any string                | Button or link text                |
+| `href`    | Any URL or path           | Destination when clicked           |
+| `variant` | `primary` or `secondary`  | Controls the button style          |
+
+### List Fields
+
+Fields that accept a list of strings (such as skills or stack items) render as a tag-style input in Studio. Add or remove items individually.
+
+<Tip>
+  Keep skill and stack lists concise — aim for 6–12 items to avoid visual clutter in the rendered sections.
+</Tip>

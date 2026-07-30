@@ -1,0 +1,141 @@
+---
+title: "Uploading and Managing Assets in Studio"
+sidebarTitle: "Assets"
+description: "Upload images and media files through Studio at /admin. In Save2Repo mode, uploaded assets are committed to your GitHub repo automatically."
+---
+
+Assets are the images and media files that appear throughout your portfolio — hero backgrounds, project covers, blog post thumbnails, and profile photos. Studio includes a built-in asset manager so you can upload files directly from your browser, reference them in any image field, and have them committed to your repository automatically when Save2Repo is enabled.
+
+## Uploading an Asset
+
+You upload assets from within any image field in Studio — there is no separate upload page to visit.
+
+<Steps>
+  <Step title="Open an image field in Studio">
+    Navigate to `/admin`, select the page or collection entry you want to edit, and click an image field. The asset picker opens inline.
+  </Step>
+  <Step title="Choose a file to upload">
+    Click **Upload** in the asset picker and select a file from your local machine. Studio sends the file to `POST /api/upload-asset`.
+  </Step>
+  <Step title="Select the uploaded asset">
+    After the upload completes, the file appears in the asset list. Click it to populate the image field's `url` property automatically.
+  </Step>
+  <Step title="Add alt text">
+    Fill in the `alt` field with a descriptive caption for the image. This is required for accessibility and SEO.
+  </Step>
+  <Step title="Save your changes">
+    Click **Save**. In Save2Repo mode, the uploaded file and the updated JSON are both committed to your GitHub repo in the same operation.
+  </Step>
+</Steps>
+
+<Note>
+  Both `url` and `alt` are required on every image field. Studio will warn you if `alt` is empty before allowing a save.
+</Note>
+
+---
+
+## How Assets Are Stored
+
+Where your uploaded files live depends on your environment.
+
+| Environment                  | Storage location                                  |
+| ---------------------------- | ------------------------------------------------- |
+| Local dev (no Save2Repo)     | Written to the project directory on disk          |
+| Vercel + Save2Repo enabled   | Committed to your GitHub repo alongside JSON data |
+
+In Save2Repo mode, assets become part of your repository's version history. Every upload is traceable and reversible through standard Git operations.
+
+---
+
+## Asset API Endpoints
+
+Studio uses three protected API routes to manage assets and content. All routes require an authenticated session on Vercel deployments.
+
+| Method   | Endpoint              | Purpose                                      |
+| -------- | --------------------- | -------------------------------------------- |
+| `POST`   | `/api/upload-asset`   | Upload a media file to the project           |
+| `GET`    | `/api/list-assets`    | Return a list of all uploaded files          |
+| `POST`   | `/api/save-to-file`   | Persist page or section edits to JSON        |
+
+<Warning>
+  These endpoints are admin-only. The middleware blocks all unauthenticated requests to these routes on Vercel when `ADMIN_PUBLIC_KEY` is configured. Do not expose these routes publicly.
+</Warning>
+
+---
+
+## Supported File Formats
+
+Studio accepts the following image formats for upload:
+
+- **JPEG** (`.jpg`, `.jpeg`) — photographs and complex images
+- **PNG** (`.png`) — images requiring transparency
+- **WebP** (`.webp`) — recommended for best compression and quality
+- **SVG** (`.svg`) — logos, icons, and vector graphics
+- **GIF** (`.gif`) — simple animations
+
+<Info>
+  SVG files are ideal for logos and icons because they scale without quality loss. For photographs and section backgrounds, prefer WebP.
+</Info>
+
+---
+
+## Best Practices
+
+Follow these guidelines to keep your portfolio loading fast and looking sharp.
+
+### Optimize Before Uploading
+
+<Steps>
+  <Step title="Resize to the display size">
+    Export images at the size they'll be displayed. For full-width hero backgrounds, 1600px wide is sufficient. For thumbnails, 800px wide is plenty.
+  </Step>
+  <Step title="Use WebP format">
+    Convert JPEG and PNG images to WebP before uploading. WebP typically produces 25–35% smaller files at equivalent visual quality.
+  </Step>
+  <Step title="Compress the file">
+    Run images through a compressor (e.g., Squoosh or ImageOptim) before upload. Aim for files under 300KB for most use cases.
+  </Step>
+</Steps>
+
+### Use Unsplash for Placeholder and Stock Photography
+
+The default content in next-dev-portfolio uses Unsplash URLs with query parameters for on-the-fly resizing. You can do the same in any image field without uploading anything:
+
+```json
+{
+  "url": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&q=80",
+  "alt": "Close-up of a circuit board with blue lighting"
+}
+```
+
+| Query param | Purpose                                      |
+| ----------- | -------------------------------------------- |
+| `w=1600`    | Resize to 1600px wide                        |
+| `q=80`      | Set JPEG quality to 80 (good balance)        |
+| `fm=webp`   | Force WebP output for supported browsers     |
+
+<Tip>
+  For portfolio hero images, `?w=1600&q=80` on an Unsplash URL gives you a high-quality, fast-loading image without any upload step. Add `&fm=webp` to serve WebP to supported browsers automatically.
+</Tip>
+
+### Always Write Descriptive Alt Text
+
+Every image field in a page section has both a `url` and an `alt` property. Both are required.
+
+```json
+{
+  "url": "https://images.unsplash.com/photo-example?w=1600&q=80",
+  "alt": "A developer reviewing code on a large monitor"
+}
+```
+
+Good alt text:
+- Describes the content and purpose of the image
+- Is concise — typically one sentence or fewer
+- Does not begin with "image of" or "photo of"
+- Is unique per image
+
+Poor alt text:
+- Empty strings (`""`)
+- Generic labels (`"hero"`, `"image1"`)
+- Redundant descriptions already present in surrounding text

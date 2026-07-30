@@ -1,0 +1,174 @@
+---
+title: "Managing Case Studies and Projects in next-dev-portfolio"
+sidebarTitle: "Projects"
+description: "Add and edit portfolio case studies by updating src/data/collections/projects/projects.json. Each project includes context, problem, architecture, results, and stack."
+---
+
+Portfolio case studies in next-dev-portfolio live in `src/data/collections/projects/projects.json`. Like blog posts, the file is a keyed object where each top-level key is the project's slug and each value is a fully typed project record. The structured fields — context, problem, architecture, result — encourage you to write each case study as a coherent narrative rather than a bullet list, which makes a stronger impression on anyone reading your work.
+
+## File Location
+
+```
+src/data/collections/projects/projects.json
+```
+
+## Data Structure
+
+The top-level object maps `slug → project`:
+
+```json
+{
+  "your-project-slug": { ... },
+  "another-project-slug": { ... }
+}
+```
+
+### Required Fields
+
+Every project record must include all of the following fields. The Zod schema will reject the build if any field is missing or has the wrong type.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Must match the top-level key exactly |
+| `title` | `string` | Project name shown in listings and at the top of the detail page |
+| `subtitle` | `string` | One-line description of what the project does or delivered |
+| `year` | `number` | Four-digit year the project was completed or shipped |
+| `role` | `string` | Your title or role on this project |
+| `context` | `string` | Background paragraph: what the product is and who it serves |
+| `problem` | `string` | Problem paragraph: what was going wrong before your work |
+| `architecture` | `string` | Solution paragraph: the technical approach you took |
+| `result` | `string` | Outcome paragraph: measurable or qualitative impact |
+| `stack` | `string[]` | Ordered list of technologies used, shown as tags on the detail page |
+| `image` | `object` | Hero image — requires `url` and `alt` sub-fields |
+| `tags` | `string[]` | Lowercase tag strings used for filtering in the work listing |
+| `featured` | `boolean` | When `true`, the project appears in the `featured-projects` section on the home page |
+
+### The `role` Field
+
+Use the `role` field to set your title or contribution on this specific project. Be specific — `"Lead systems architect"` communicates more than `"Engineer"`.
+
+```json
+"role": "Lead systems architect"
+```
+
+### The `stack` Array
+
+List technologies in the order that best reflects your contribution — lead technologies first. These are rendered as pill tags on the project detail page.
+
+```json
+"stack": ["TypeScript", "Zod", "React", "Vite", "PostgreSQL"]
+```
+
+### The `featured` Boolean
+
+Setting `featured: true` makes the project eligible to appear in the `featured-projects` section on the home page. The section's `limit` field in `src/data/pages/home.json` caps the total number shown — featured projects are selected in the order they appear in `projects.json`.
+
+```json
+"featured": true
+```
+
+<Note>
+  If you have more `featured: true` projects than the home page `limit` allows, the extras are simply not shown on the home page. They remain fully accessible at their `/work/[slug]` URLs and in the full work listing.
+</Note>
+
+### The `image` Object
+
+| Sub-field | Description |
+|---|---|
+| `url` | Absolute URL to the project hero image. Unsplash works well — append `?w=1600&q=80`. |
+| `alt` | Descriptive alt text for accessibility and SEO |
+
+```json
+"image": {
+  "url": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1600&q=80",
+  "alt": "Dark IDE showing structured TypeScript code"
+}
+```
+
+## How Projects Are Displayed
+
+<CardGroup cols={2}>
+  <Card title="Home page — featured projects" icon="star">
+    The `featured-projects` section on `src/data/pages/home.json` pulls projects where `featured: true`, up to the configured `limit`.
+  </Card>
+  <Card title="Work list page — /work" icon="briefcase">
+    The `projects-list` section on `src/data/pages/work.json` renders all projects in the order they appear in `projects.json`.
+  </Card>
+</CardGroup>
+
+To control how many featured projects appear on the home page, open `src/data/pages/home.json` and update the `limit` in the `featured-projects` section:
+
+```json
+{
+  "id": "featured-projects-1",
+  "type": "featured-projects",
+  "data": {
+    "heading": "Selected work",
+    "limit": 3
+  }
+}
+```
+
+## Dynamic Route
+
+Every project is accessible at `/work/[slug]`, where `[slug]` is the top-level key in `projects.json`. The template at `src/data/pages/work/[slug].json` configures the `project-detail` section that assembles the full case study layout from the project's structured fields.
+
+## Adding a New Project
+
+<Steps>
+  <Step title="Open projects.json">
+    Open `src/data/collections/projects/projects.json` in your editor.
+  </Step>
+  <Step title="Append a new entry">
+    Copy an existing project object and paste it as a new key-value pair. Choose a URL-safe slug: lowercase letters, numbers, and hyphens only.
+  </Step>
+  <Step title="Fill in every required field">
+    Write `context`, `problem`, `architecture`, and `result` as full paragraphs. See the best practices section below for guidance on what each should say.
+  </Step>
+  <Step title="Rebuild the site">
+    ```bash
+    npm run build
+    ```
+    The Zod schema validates every project at build time. Missing or mistyped fields produce a descriptive error with the field path.
+  </Step>
+</Steps>
+
+## Best Practices for Case Study Writing
+
+The four narrative fields are the heart of each case study. Treat them as short paragraphs, not bullet lists.
+
+| Field | What to write |
+|---|---|
+| `context` | Describe the product, its users, and its scale. Give the reader just enough background to understand the stakes. |
+| `problem` | Name the specific failure mode you were brought in to fix. Quantify if you can ("editors published broken pages weekly"). |
+| `architecture` | Explain the technical solution in plain language. Name the key decisions and why you made them. |
+| `result` | State the outcome. Prefer numbers: error rates, latency reductions, team-time saved. If you can't quantify, be concrete about what changed. |
+
+<Tip>
+  A strong `result` paragraph often mirrors the `problem` paragraph — if the problem was "publish errors happened weekly", the result is "publish errors dropped 40% in the first sprint". This symmetry makes the impact immediately legible.
+</Tip>
+
+## Complete Project Example
+
+```json
+{
+  "schemaforge-cms": {
+    "id": "schemaforge-cms",
+    "title": "SchemaForge CMS",
+    "subtitle": "Schema-driven content publishing for multi-tenant sites",
+    "year": 2025,
+    "role": "Lead systems architect",
+    "context": "A content platform serving 40+ tenants across three product lines, each with its own editorial team and page templates. The platform had grown organically over four years and had no shared content contracts between teams.",
+    "problem": "Editors published broken pages weekly because the CMS allowed any JSON shape in its page blob field. There was no validation layer, so a missing headline or a misspelled image key would silently produce a blank section in production.",
+    "architecture": "Introduced Zod collection contracts for every section type. Each page section now declares its schema at registration time. The editor form is generated from the schema, so fields can't be left in an invalid state. A build-time validator runs against all stored JSON before any deploy proceeds.",
+    "result": "Publish errors dropped 40% in the first sprint after rollout. The editorial team's support ticket volume fell by half over the following quarter. New section types can now be shipped with their schema and editor form in a single pull request.",
+    "stack": ["TypeScript", "Zod", "React", "Vite", "PostgreSQL"],
+    "image": {
+      "url": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1600&q=80",
+      "alt": "Dark IDE window displaying structured TypeScript schema code"
+    },
+    "tags": ["cms", "schemas", "content-infra"],
+    "featured": true
+  }
+}
+```

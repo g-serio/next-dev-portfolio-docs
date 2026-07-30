@@ -1,0 +1,83 @@
+{
+  "projectType": "saas",
+  "projectName": "next-dev-portfolio",
+  "projectDescription": "A schema-driven Next.js developer portfolio template powered by OlonJS — deploy to Vercel in one click to get a fully editable portfolio with a built-in Studio CMS, blog, case studies, and AI-ready MCP manifests.",
+  "theme": "luma",
+  "primaryColor": "#7c7c7c",
+  "lightColor": "#050505",
+  "darkColor": "#cdcdcd",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "deploy-to-vercel"
+            ]
+          },
+          {
+            "group": "Content",
+            "pages": [
+              "content/pages",
+              "content/blog-posts",
+              "content/projects",
+              "content/site-config"
+            ]
+          },
+          {
+            "group": "Studio",
+            "pages": [
+              "studio/overview",
+              "studio/editing",
+              "studio/assets"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "customization/theme",
+              "customization/navigation",
+              "customization/sections"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/mcp-manifests",
+              "advanced/environment-variables",
+              "advanced/schema-validation"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "One-click Vercel deploy with Save2Repo integration",
+    "Built-in Studio CMS at /admin for live content editing",
+    "Schema-driven pages — every section validated by Zod contracts",
+    "Blog with full Markdown/MDX support",
+    "Case studies / work portfolio with structured project data",
+    "MCP manifests for AI agent discoverability",
+    "Automatic sitemap, robots.txt, and JSON-LD SEO",
+    "Dark/light theme tokens with full CSS variable system",
+    "File-based content stored in JSON — no database required",
+    "TypeScript end-to-end with generated OpenAPI and client types"
+  ],
+  "publicApiSurface": [
+    "GET /pages/:path*.json — public page JSON bundles",
+    "GET /:path*.json — rewrite alias for page JSON",
+    "GET /mcp-manifest.json — root MCP manifest index",
+    "GET /mcp-manifests/:slug.json — per-page MCP manifests",
+    "GET /schemas/:slug.schema.json — JSON Schema contracts",
+    "GET /sitemap.xml — generated sitemap",
+    "GET /llms.txt — LLM-readable site description",
+    "POST /api/save-to-file — persist Studio edits to JSON (admin-protected)",
+    "POST /api/upload-asset — upload media assets (admin-protected)",
+    "GET /api/list-assets — list uploaded assets (admin-protected)"
+  ]
+}

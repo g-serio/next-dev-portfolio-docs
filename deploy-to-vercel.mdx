@@ -1,0 +1,155 @@
+---
+title: "Deploy next-dev-portfolio to Vercel with One Click"
+sidebarTitle: "Deploy to Vercel"
+description: "Deploy next-dev-portfolio to Vercel using the one-click deploy button. Save2Repo automatically commits Studio edits back to your GitHub repo."
+---
+
+next-dev-portfolio is designed to run on Vercel with zero manual infrastructure setup. The one-click deploy button below clones the template into your GitHub account, installs the OlonJS Save2Repo integration, and deploys your site to a global edge network — all in a single flow. This page explains exactly what happens during deployment, how the Save2Repo integration works, and how to manage your site after it is live.
+
+## Deploy Button
+
+Click the button to start the Vercel deploy flow. You will need a Vercel account (free tier is sufficient) and a connected GitHub account.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Folonjs%2Fnext-dev-portfolio&integration-ids=oac_1AZc2aypKrBOmV0Ce0BBYLRu&external-id=save2repo&teamSlug=gfscloud)
+
+<Tip>
+  The deploy URL includes the Save2Repo integration ID (`oac_1AZc2aypKrBOmV0Ce0BBYLRu`) so the integration is installed automatically. You do not need to visit the Vercel integration marketplace separately.
+</Tip>
+
+---
+
+## What the Deploy Does
+
+When you click the deploy button, Vercel performs the following steps in order:
+
+<Steps>
+  <Step title="Clones the Template Repository">
+    Vercel forks `olonjs/next-dev-portfolio` from GitHub into your own account under the repository name you choose. You own this repository outright — it is not a linked fork, it is a fresh copy with full history.
+  </Step>
+
+  <Step title="Installs the Save2Repo Integration">
+    The OlonJS Save2Repo Vercel integration (`oac_1AZc2aypKrBOmV0Ce0BBYLRu`) is installed on your new project. This integration grants `@olonjs/studio` write access to your repository so that Studio edits can be committed back as real Git commits.
+
+    The integration automatically injects `NEXT_PUBLIC_OLONJS_SAVE2REPO=true` into your Vercel project environment variables. You do not need to set this manually.
+  </Step>
+
+  <Step title="Runs the Prebuild Pipeline">
+    Before the Next.js build starts, the OlonJS prebuild pipeline runs:
+
+    ```bash
+    # Executed automatically by the build command
+    npx olonjs sync-pages    # Syncs route definitions from content schemas
+    npx olonjs bake          # Validates JSON via Zod and writes to public/data/
+    npx olonjs gen-sitemap   # Generates public/sitemap.xml and public/robots.txt
+    npx olonjs gen-llms      # Generates public/llms.txt for AI agent discovery
+    ```
+
+    If any JSON file in `src/data/` fails Zod validation, the prebuild exits with a non-zero code and the Vercel deployment is cancelled with a clear error message.
+  </Step>
+
+  <Step title="Builds and Deploys the Next.js App">
+    Next.js statically generates all portfolio pages from the baked JSON data. The output is deployed to Vercel's edge network and served from a `.vercel.app` domain (for example, `your-portfolio-xyz.vercel.app`).
+  </Step>
+</Steps>
+
+---
+
+## The Save2Repo Integration
+
+Save2Repo is the mechanism that keeps your Studio edits version-controlled. Here is the full flow from a content edit to a live update:
+
+```
+You edit a field in Studio (/admin)
+  ↓
+@olonjs/studio patches the JSON object in memory
+  ↓
+POST /api/olonjs/save  (Next.js API route)
+  ↓
+Save2Repo integration authenticates with GitHub
+  ↓
+Updated JSON file is committed to your repository
+  ↓
+Vercel detects the new commit on main
+  ↓
+New deployment starts automatically (~30s to live)
+```
+
+**Why this matters:**
+
+- Your content is always in Git. Every Studio save has a commit SHA, timestamp, and message you can inspect or revert.
+- You never lose content because of a failed deploy. The JSON files in your repository are the source of truth — Vercel simply rebuilds from them.
+- You can edit content in Studio on your phone, merge a pull request from your laptop, and push a theme change from your desktop — everything flows through the same repository.
+
+<Warning>
+  Save2Repo commits directly to your default branch (`main`). If you use branch protection rules that require pull request reviews, Studio saves will fail. Either exclude the Save2Repo integration from branch protection or use a dedicated `content` branch for Studio edits.
+</Warning>
+
+---
+
+## Environment Variables
+
+The following environment variables control the behaviour of next-dev-portfolio on Vercel. The Save2Repo integration sets the first variable automatically; the rest are optional.
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_OLONJS_SAVE2REPO` | Set by integration | Set to `true` to enable the Save2Repo commit flow from Studio. The integration injects this automatically — do not override it to `false` unless you want to disable Studio saves. |
+| `NEXT_PUBLIC_OLONJS_CLOUD_URL` | Optional | Base URL for the OlonJS Cloud API. Set this to enable live editing mode, where content updates stream to all open browser sessions in real time without a full page reload. |
+| `NEXT_PUBLIC_OLONJS_API_KEY` | Optional | API key for the OlonJS Cloud service. Required when `NEXT_PUBLIC_OLONJS_CLOUD_URL` is set. Generate a key from your OlonJS Cloud dashboard. |
+| `ADMIN_PUBLIC_KEY` | Recommended | A public key used to protect the `/admin` route on deployed instances. When `VERCEL_ENV` is set and this variable is present, Studio requires authentication before granting access. Leave unset during initial setup; add it once your site is live. |
+
+To add or update environment variables, go to your project in the Vercel dashboard, open **Settings → Environment Variables**, and add the key-value pair. Changes take effect on the next deployment.
+
+<Info>
+  `VERCEL_ENV` is injected automatically by Vercel on all deployments (values: `production`, `preview`, or `development`). next-dev-portfolio uses it to distinguish between local dev (where Studio is always open) and deployed instances (where `ADMIN_PUBLIC_KEY` is enforced).
+</Info>
+
+---
+
+## Adding a Custom Domain
+
+After your site is live, you can replace the `.vercel.app` URL with your own domain.
+
+1. Open your project in the [Vercel dashboard](https://vercel.com/dashboard).
+2. Navigate to **Settings → Domains**.
+3. Enter your domain (for example, `yourname.dev`) and click **Add**.
+4. Follow the instructions to update your DNS records. Vercel supports both CNAME and A record configurations, and it provisions a TLS certificate automatically.
+
+Your custom domain is live as soon as DNS propagation completes (usually within a few minutes for most registrars).
+
+<Tip>
+  If you use Vercel's nameservers, DNS propagation is near-instant. Consider pointing your domain's nameservers to Vercel for the fastest setup.
+</Tip>
+
+---
+
+## Redeployment
+
+Every push to your default branch — whether you push code manually or Save2Repo makes a content commit — triggers a new Vercel deployment automatically. You do not need to trigger deploys manually.
+
+**Deployment sources:**
+
+| Source | Trigger |
+|---|---|
+| Studio save | Save2Repo commits to `main` → Vercel redeploys |
+| `git push origin main` | Direct push → Vercel redeploys |
+| Pull request merge | Merge to `main` → Vercel redeploys |
+| Vercel dashboard | Manual redeploy button in the dashboard |
+
+**Preview deployments:** Pushes to non-default branches and pull requests automatically generate preview deployments on unique `.vercel.app` URLs. Use these to review content or code changes before merging to `main`.
+
+<Note>
+  Save2Repo only commits to the branch you configured during integration setup (default: `main`). Pull request previews do not trigger Save2Repo commits — Studio saves on a preview deployment will fail gracefully with a warning in the Studio UI.
+</Note>
+
+---
+
+## Troubleshooting
+
+**The build fails with a Zod validation error.**
+Open the build logs in the Vercel dashboard and look for a line beginning with `[olonjs:bake]`. The error message names the file and field that failed validation. Fix the JSON in your repository and push to trigger a new build.
+
+**Studio saves are not committing to GitHub.**
+Verify that `NEXT_PUBLIC_OLONJS_SAVE2REPO` is set to `true` in your Vercel environment variables. If it is set correctly, check the **Integrations** section of your Vercel project to confirm the Save2Repo integration is still installed and authorised.
+
+**I cannot access /admin on my deployed site.**
+If you have set `ADMIN_PUBLIC_KEY`, you must authenticate with the matching private key. If you have forgotten the key, remove the environment variable in the Vercel dashboard, redeploy, and set a new key pair.

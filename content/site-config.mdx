@@ -1,0 +1,246 @@
+---
+title: "Configuring Site Identity, Header, and Footer"
+sidebarTitle: "Site Config"
+description: "Update your portfolio's global branding, navigation links, header, footer, and social profiles by editing src/data/config/site.json and menu.json."
+---
+
+Your portfolio's global identity — name, header logo, footer copy, social links, and navigation menus — is controlled by two JSON files in `src/data/config/`. Updating these files changes the branding and navigation across every page at once, so you only need to edit one place when your name, job title, or social handles change.
+
+## Configuration Files at a Glance
+
+<CardGroup cols={2}>
+  <Card title="site.json" icon="id-card">
+    Controls your name/title, header logo text, footer description, copyright line, and social link array.
+  </Card>
+  <Card title="menu.json" icon="bars">
+    Controls the main navigation items and the footer link list, including which item renders as a CTA button.
+  </Card>
+</CardGroup>
+
+---
+
+## `src/data/config/site.json`
+
+This file holds three top-level keys: `identity`, `header`, and `footer`.
+
+### `identity`
+
+The `identity` object stores your name or site title — used in the document `<title>` tag and as a fallback wherever the site needs to refer to itself generically.
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | `string` | Your full name or site title, e.g. `"Andrew Linh"` |
+
+```json
+"identity": {
+  "title": "Andrew Linh"
+}
+```
+
+### `header`
+
+The `header` object configures the site-wide top bar that appears on every page.
+
+| Field | Type | Description |
+|---|---|---|
+| `logoText` | `string` | Full text rendered beside the logo mark, e.g. your name |
+| `logoHighlight` | `string` | Abbreviated initials shown inside the logo mark (e.g. `"AL"` for Andrew Linh) |
+| `sticky` | `boolean` | When `true`, the header stays fixed at the top of the viewport on scroll |
+
+The `logoHighlight` field is the short identifier that appears in the coloured logo tile. Use two or three characters — typically your initials.
+
+```json
+"header": {
+  "logoText": "Andrew Linh",
+  "logoHighlight": "AL",
+  "sticky": true
+}
+```
+
+<Tip>
+  Set `sticky: true` to keep your name and navigation in view as readers scroll through long blog posts or case studies. Set it to `false` for a cleaner, more editorial feel.
+</Tip>
+
+### `footer`
+
+The `footer` object controls the bottom-of-page section rendered on every page.
+
+| Field | Type | Description |
+|---|---|---|
+| `brand` | `string` | Short brand name or tagline shown at the top of the footer |
+| `description` | `string` | One or two sentences describing what you do |
+| `copyright` | `string` | Copyright line, e.g. `"© 2026 Andrew Linh"` |
+| `socials` | `array` | Array of social link objects (see below) |
+
+#### Social Links
+
+Each entry in the `socials` array has four fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Unique identifier for the link |
+| `label` | `string` | Accessible label and visible link text |
+| `href` | `string` | Full URL to the profile or feed |
+| `icon` | `string` | Icon identifier — supported values: `github`, `linkedin`, `rss` |
+
+```json
+"footer": {
+  "brand": "Andrew Linh",
+  "description": "Backend systems and long-form writing on the decisions behind them.",
+  "copyright": "© 2026 Andrew Linh. All rights reserved.",
+  "socials": [
+    {
+      "id": "social-github",
+      "label": "GitHub",
+      "href": "https://github.com/andrew-linh",
+      "icon": "github"
+    },
+    {
+      "id": "social-linkedin",
+      "label": "LinkedIn",
+      "href": "https://linkedin.com/in/andrew-linh",
+      "icon": "linkedin"
+    },
+    {
+      "id": "social-rss",
+      "label": "RSS Feed",
+      "href": "/feed.xml",
+      "icon": "rss"
+    }
+  ]
+}
+```
+
+<Note>
+  Only `github`, `linkedin`, and `rss` are supported icon values. Using any other string will render no icon. If you need additional social networks, add the icon to the icon registry in `src/components/icons/` before referencing it here.
+</Note>
+
+### Full `site.json` Example
+
+```json
+{
+  "identity": {
+    "title": "Andrew Linh"
+  },
+  "header": {
+    "logoText": "Andrew Linh",
+    "logoHighlight": "AL",
+    "sticky": true
+  },
+  "footer": {
+    "brand": "Andrew Linh",
+    "description": "Backend systems and long-form writing on the decisions behind them.",
+    "copyright": "© 2026 Andrew Linh. All rights reserved.",
+    "socials": [
+      {
+        "id": "social-github",
+        "label": "GitHub",
+        "href": "https://github.com/andrew-linh",
+        "icon": "github"
+      },
+      {
+        "id": "social-linkedin",
+        "label": "LinkedIn",
+        "href": "https://linkedin.com/in/andrew-linh",
+        "icon": "linkedin"
+      },
+      {
+        "id": "social-rss",
+        "label": "RSS Feed",
+        "href": "/feed.xml",
+        "icon": "rss"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## `src/data/config/menu.json`
+
+This file defines two navigation menus: `main` (the top-bar navigation) and `footer` (the footer link row).
+
+### `main`
+
+The `main` array controls which links appear in the site header. Items render in the order they appear in the array.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Unique identifier for the nav item |
+| `label` | `string` | Visible link text |
+| `href` | `string` | URL path or absolute URL |
+| `isCta` | `boolean` _(optional)_ | When `true`, the item renders as a styled CTA button instead of a plain link |
+
+Use `isCta: true` on one item — typically a "Get in touch" or "Hire me" link — to create a visual call-to-action in the nav bar.
+
+```json
+"main": [
+  { "id": "nav-work",    "label": "Work",    "href": "/work"    },
+  { "id": "nav-blog",    "label": "Writing", "href": "/blog"    },
+  { "id": "nav-about",   "label": "About",   "href": "/about"   },
+  { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
+]
+```
+
+### `footer`
+
+The `footer` array defines the link row in the site footer. It follows the same shape as a `main` item but `isCta` is not used here.
+
+```json
+"footer": [
+  { "id": "footer-work",    "label": "Work",    "href": "/work"    },
+  { "id": "footer-blog",    "label": "Writing", "href": "/blog"    },
+  { "id": "footer-about",   "label": "About",   "href": "/about"   },
+  { "id": "footer-contact", "label": "Contact", "href": "/contact" }
+]
+```
+
+### Full `menu.json` Example
+
+```json
+{
+  "main": [
+    { "id": "nav-work",    "label": "Work",    "href": "/work"    },
+    { "id": "nav-blog",    "label": "Writing", "href": "/blog"    },
+    { "id": "nav-about",   "label": "About",   "href": "/about"   },
+    { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
+  ],
+  "footer": [
+    { "id": "footer-work",    "label": "Work",    "href": "/work"    },
+    { "id": "footer-blog",    "label": "Writing", "href": "/blog"    },
+    { "id": "footer-about",   "label": "About",   "href": "/about"   },
+    { "id": "footer-contact", "label": "Contact", "href": "/contact" }
+  ]
+}
+```
+
+---
+
+## Applying Changes
+
+<Steps>
+  <Step title="Edit the config file(s)">
+    Open `src/data/config/site.json` or `src/data/config/menu.json` in your editor and make your changes.
+  </Step>
+  <Step title="Rebuild the site">
+    Run the build command to bake the updated config into `public/`:
+
+    ```bash
+    npm run build
+    ```
+
+    To preview changes without a full production build, use the dev server:
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+  <Step title="Or use Studio with Save2Repo">
+    If you are editing through the visual Studio at `/admin` and **Save2Repo** is active, saving any config change writes the JSON file and triggers an automatic bake. No manual build step is required.
+  </Step>
+</Steps>
+
+<Warning>
+  Config changes — especially to `menu.json` — affect every page simultaneously. Always preview your changes locally with `npm run dev` before pushing to production to confirm the navigation looks correct across all breakpoints.
+</Warning>

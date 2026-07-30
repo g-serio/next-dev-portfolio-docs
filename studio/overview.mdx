@@ -1,0 +1,72 @@
+---
+title: "Studio CMS: Visual Content Editing for Your Portfolio"
+sidebarTitle: "Overview"
+description: "Studio is the built-in CMS for next-dev-portfolio. Access it at /admin to edit any section of your site visually, with changes committed back to your GitHub repo."
+---
+
+Studio is the built-in visual CMS included with next-dev-portfolio, powered by `@olonjs/studio`. It gives you a live, form-driven editor for every section of your portfolio — no code required. Navigate to `/admin` on your site and you can update hero text, bio copy, skills, project case studies, blog posts, and more, all from a single interface.
+
+## Accessing Studio
+
+Open Studio by visiting the `/admin` route on your site:
+
+- **Locally:** `http://localhost:3000/admin`
+- **On Vercel:** `https://your-portfolio.vercel.app/admin`
+
+Studio is served from `app/admin/[[...slug]]/page.tsx` and renders an editable view of your portfolio content. Every page section exposes form fields generated directly from its Zod schema, so the editor always stays in sync with the shape of your data.
+
+## Save Modes
+
+How Studio persists your changes depends on where you're running it.
+
+### Local Mode
+
+When you run the dev server locally without a Save2Repo configuration, Studio writes changes directly to the JSON files in `src/data/`. The save is instant and requires no external services. Use this mode when developing or previewing content changes before pushing to production.
+
+### Save2Repo Mode
+
+When your site is deployed to Vercel and the Save2Repo integration is enabled, Studio commits the updated JSON files back to your connected GitHub repository. Each save triggers a new Vercel deployment, so your live site reflects the change automatically within seconds.
+
+<Note>
+  Save2Repo requires the Vercel integration and a properly configured `ADMIN_PUBLIC_KEY` environment variable. See the deployment guide for setup instructions.
+</Note>
+
+## What You Can Edit
+
+Studio gives you full editorial control over every content layer in your portfolio:
+
+- **Page sections** — home hero, bio band, skills stack, work preview, contact block, and more
+- **Blog posts** — title, body (Markdown), tags, date, and cover image
+- **Projects / case studies** — problem, architecture, result, stack, featured flag, and images
+- **Site config** — site name, metadata, and social links
+- **Navigation menus** — labels, links, and order
+
+## Asset Uploads
+
+Studio includes a built-in asset uploader accessible from any image field. Upload a file directly from your browser and Studio stores it in your project. In Save2Repo mode, the uploaded file is committed to your GitHub repo alongside the JSON content changes.
+
+<Info>
+  For best performance, upload WebP images no wider than 1600px, or reference Unsplash URLs with `?w=1600&q=80` query parameters — the approach used by the default content.
+</Info>
+
+## Admin Access Protection
+
+The `/admin` route and all mutate API endpoints (`/api/save-to-file`, `/api/upload-asset`, `/api/list-assets`) are guarded by middleware.
+
+- **On Vercel:** when `VERCEL_ENV` is set and `ADMIN_PUBLIC_KEY` is present, the middleware enforces authentication via a session cookie. Only authenticated users can access Studio or call the save/upload APIs.
+- **Locally:** the middleware bypasses authentication so you can edit freely during development.
+
+<Warning>
+  Never expose `ADMIN_PUBLIC_KEY` in client-side code or public environment variables. Keep it server-side only.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Editing Content" icon="pencil" href="/studio/editing">
+    Learn how to edit page sections, blog posts, and project case studies step by step.
+  </Card>
+  <Card title="Managing Assets" icon="image" href="/studio/assets">
+    Upload and manage images and media files used across your portfolio sections.
+  </Card>
+</CardGroup>

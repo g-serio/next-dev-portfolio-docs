@@ -1,47 +1,147 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with next-dev-portfolio on Vercel"
+sidebarTitle: "Quickstart"
+description: "Deploy a fully functional developer portfolio to Vercel in under five minutes using next-dev-portfolio and the OlonJS Save2Repo integration."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+The fastest way to launch your portfolio is the one-click Vercel deploy. Vercel clones the template repo into your own GitHub account, installs the Save2Repo integration, and deploys your site — all in a single flow. From there you can edit content visually in Studio and push code changes locally. This guide walks you through both paths.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## Deploy to Vercel
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Click the Deploy Button">
+    Click the button below to start the Vercel deploy flow. You will be prompted to log in to Vercel (or create a free account) if you are not already authenticated.
 
-    ```bash
-    npm install your-package
-    ```
+    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Folonjs%2Fnext-dev-portfolio&integration-ids=oac_1AZc2aypKrBOmV0Ce0BBYLRu&external-id=save2repo&teamSlug=gfscloud)
+
+    <Tip>
+      You need a GitHub account connected to Vercel. If you haven't connected one yet, Vercel will walk you through the OAuth flow before proceeding.
+    </Tip>
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Name Your Repository">
+    Vercel will ask you to name the new GitHub repository it creates for you. Choose a name that reflects your portfolio (for example, `my-portfolio` or `yourname-dev`). Vercel clones `olonjs/next-dev-portfolio` into your account under that name.
+
+    At the same time, the **OlonJS Save2Repo** Vercel integration is installed on your project. This integration is what allows Studio to commit content edits back to your repository. You do not need to configure it manually.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
+  <Step title="Wait for the Build to Complete">
+    Vercel runs the full build pipeline automatically:
+
+    1. **Prebuild** — OlonJS syncs page schemas, validates all JSON files in `src/data/`, and bakes the output to `public/data/`.
+    2. **Asset generation** — `sitemap.xml`, `robots.txt`, `llms.txt`, and JSON-LD metadata are written to `public/`.
+    3. **Next.js build** — Pages are statically generated and bundled for the edge.
+
+    The first build typically takes 60–90 seconds. You can watch the live build logs in the Vercel dashboard.
+
+    <Note>
+      If the build fails, check the log for Zod validation errors. A validation error means one of the JSON files in `src/data/` has an invalid or missing field. This should not happen on a fresh clone — if it does, open an issue on the [GitHub repo](https://github.com/olonjs/next-dev-portfolio).
+    </Note>
+  </Step>
+
+  <Step title="Visit Your Live Site">
+    When the build finishes, Vercel provides a `.vercel.app` URL. Open it to see your portfolio running live with the default content — a hero section, sample case studies, a blog post, and an about page.
+
+    This is your starting point. All the default content lives in JSON files inside your new GitHub repository, ready for you to personalise.
+  </Step>
+
+  <Step title="Open Studio at /admin">
+    Navigate to `https://your-site.vercel.app/admin` to open the built-in Studio CMS. Studio reads your live content schemas and renders a form-based editor for every section of every page.
+
+    <Warning>
+      On deployed Vercel instances, Studio is protected by the `ADMIN_PUBLIC_KEY` environment variable. If you set this variable, you will be prompted to authenticate before accessing `/admin`. On a fresh deploy without this variable set, Studio is accessible to anyone with the URL — add `ADMIN_PUBLIC_KEY` in the Vercel dashboard to secure it.
+    </Warning>
+  </Step>
+
+  <Step title="Edit Content and Save">
+    In Studio, select a section to edit — for example, open **Home → Hero** and change the headline to your name and tagline. Click **Save**.
+
+    Here is what happens behind the scenes:
+
     ```
+    Studio form submit
+      → @olonjs/core patches src/data/home.json
+      → Save2Repo commits the updated file to your GitHub repo
+      → Vercel detects the commit and starts a new deployment
+      → Your live site reflects the change in ~30 seconds
+    ```
+
+    Every save is a real Git commit. Open your repository on GitHub and you will see the commit history for every content change you make in Studio.
+
+    <Tip>
+      You can make several edits before saving to batch them into a single commit, reducing unnecessary redeployments.
+    </Tip>
+  </Step>
+
+  <Step title="Next Steps">
+    Your portfolio is live and editable. Here are the most common customisations to tackle next:
+
+    - **Theme** — Edit `src/styles/theme.css` (or the Tailwind config) to match your personal brand colours and typography.
+    - **Navigation** — Update `src/data/site.json` to change the nav links, site title, and social URLs.
+    - **Content** — Use Studio to fill in your real bio, work history, projects, and blog posts.
+    - **Custom domain** — Add your own domain in the Vercel dashboard under **Settings → Domains**. See [Deploy to Vercel](/deploy-to-vercel) for details.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+---
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+## Local Development
+
+You can also run next-dev-portfolio on your machine for code-level customisation. Clone the repository that Vercel created in your GitHub account — this is your own fork, not the original template.
+
+<Steps>
+  <Step title="Clone Your Repository">
+    Copy the repository URL from GitHub (it will be `https://github.com/your-username/your-repo-name`), then run:
+
+    ```bash
+    git clone https://github.com/your-username/your-repo-name.git
+    cd your-repo-name
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    Install all Node.js dependencies with your preferred package manager:
+
+    ```bash
+    npm install
+    ```
+
+    next-dev-portfolio requires **Node.js 18.17 or later** and **npm 9+** (or equivalent pnpm/yarn versions).
+  </Step>
+
+  <Step title="Start the Development Server">
+    Run the dev server:
+
+    ```bash
+    npm run dev
+    ```
+
+    Next.js starts at [http://localhost:3000](http://localhost:3000). The OlonJS prebuild pipeline runs automatically before the dev server starts, validating your JSON and generating static assets.
+  </Step>
+
+  <Step title="Open Local Studio at /admin">
+    Navigate to [http://localhost:3000/admin](http://localhost:3000/admin) to open Studio locally. When running on `localhost`, Studio does **not** require `ADMIN_PUBLIC_KEY` — it is open by default for convenience.
+
+    Edits you save in local Studio write directly to the JSON files in `src/data/` on your filesystem. No network request or GitHub commit is made — the Save2Repo integration is only active on the deployed Vercel instance.
+
+    <Info>
+      You can also edit the `src/data/` JSON files directly in your code editor. The dev server will hot-reload the page automatically when it detects a file change.
+    </Info>
+  </Step>
+
+  <Step title="Commit and Push to Deploy">
+    When you are happy with your local changes — whether made through Studio, direct JSON edits, or code changes — commit and push to your default branch:
+
+    ```bash
+    git add .
+    git commit -m "feat: update hero and add new case study"
+    git push origin main
+    ```
+
+    Vercel detects the push and starts a new deployment automatically. Your live site will be updated within a minute or two.
+  </Step>
+</Steps>
+
+<Note>
+  Local Studio saves write to `src/data/` files on disk. These changes are not automatically committed or pushed — you control when they go live. This makes local development safe for experimentation before publishing.
+</Note>

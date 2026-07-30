@@ -1,55 +1,148 @@
-# Mintlify Starter Kit
+# next-dev-portfolio
 
-Use the starter kit to get your docs deployed and ready to customize.
+A schema-driven developer portfolio template built with Next.js 15 and OlonJS. Deploy to Vercel in one click — get a fully editable site with a built-in Studio CMS, blog, case studies, and AI-ready MCP manifests.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Folonjs%2Fnext-dev-portfolio&integration-ids=oac_1AZc2aypKrBOmV0Ce0BBYLRu&external-id=save2repo&teamSlug=gfscloud)
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+---
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Features
 
-## AI-assisted writing
+- **One-click Vercel deploy** with the Save2Repo integration pre-configured
+- **Built-in Studio CMS** at `/admin` — edit any section of your site visually, no code needed
+- **Save2Repo** — Studio edits commit directly back to your GitHub repo, triggering a new deployment
+- **Schema-driven content** — every page section validated by Zod schemas; build fails on invalid content
+- **Blog** with full Markdown support (remark-gfm)
+- **Case study portfolio** — structured project entries with context, problem, architecture, and results
+- **MCP manifests** — every page exposes a machine-readable manifest for AI agents and LLM tools
+- **SEO pipeline** — JSON-LD structured data, sitemap.xml, robots.txt, and Open Graph meta generated at build time
+- **No database required** — all content lives in flat JSON files in `src/data/`
+- **TypeScript end-to-end** with Zod, Next.js 15 App Router, and Tailwind CSS v4
 
-Set up your AI coding tool to work with Mintlify:
+---
+
+## Quick Start
+
+### Deploy to Vercel
+
+Click the button above, or use this URL:
+
+```
+https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Folonjs%2Fnext-dev-portfolio&integration-ids=oac_1AZc2aypKrBOmV0Ce0BBYLRu&external-id=save2repo&teamSlug=gfscloud
+```
+
+Vercel will:
+1. Fork this repo to your GitHub account
+2. Install the OlonJS Save2Repo integration
+3. Run the prebuild pipeline (bake JSON, generate sitemap, llms.txt)
+4. Deploy to a `.vercel.app` domain
+
+### Local Development
 
 ```bash
-npx skills add https://mintlify.com/docs
+git clone https://github.com/your-username/next-dev-portfolio
+cd next-dev-portfolio
+npm install
+npm run dev
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+Open [http://localhost:3000](http://localhost:3000) to see your site.
+Open [http://localhost:3000/admin](http://localhost:3000/admin) for Studio (local edits write to `src/data/` directly).
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+---
 
-## Development
+## Content Structure
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
+All content lives in `src/data/`:
 
 ```
-mint dev
+src/data/
+├── config/
+│   ├── site.json       # Site identity, header, footer, social links
+│   ├── menu.json       # Header and footer navigation menus
+│   └── theme.json      # Design tokens: colors, typography, spacing
+├── pages/
+│   ├── home.json
+│   ├── about.json
+│   ├── blog.json
+│   ├── work.json
+│   ├── contact.json
+│   ├── blog/[slug].json
+│   └── work/[slug].json
+└── collections/
+    ├── posts/posts.json      # Blog posts
+    └── projects/projects.json  # Case studies
 ```
 
-View your local preview at `http://localhost:3000`.
+Edit any JSON file and redeploy (or save via Studio) to update your site.
 
-## Publishing changes
+---
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+## Pages
 
-## Need help?
+| Page | Route | JSON file |
+|------|-------|-----------|
+| Home | `/` | `src/data/pages/home.json` |
+| About | `/about` | `src/data/pages/about.json` |
+| Work | `/work` | `src/data/pages/work.json` |
+| Blog | `/blog` | `src/data/pages/blog.json` |
+| Contact | `/contact` | `src/data/pages/contact.json` |
+| Blog post | `/blog/[slug]` | `src/data/collections/posts/posts.json` |
+| Case study | `/work/[slug]` | `src/data/collections/projects/projects.json` |
 
-### Troubleshooting
+---
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## Studio CMS
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Navigate to `/admin` on your site to open Studio. You can:
+
+- Edit page sections inline (hero, bio, skills, philosophy, CTAs)
+- Add and edit blog posts (Markdown body support)
+- Add and edit case study projects
+- Upload images and media assets
+
+In **Save2Repo mode** (enabled by the Vercel integration), Studio saves commit the updated JSON back to your GitHub repo. The new commit triggers a Vercel redeployment automatically.
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_OLONJS_SAVE2REPO` | Set to `true` to enable Save2Repo (set automatically by the Vercel integration) |
+| `NEXT_PUBLIC_OLONJS_CLOUD_URL` | OlonJS Cloud API base URL (optional, for live editing mode) |
+| `NEXT_PUBLIC_OLONJS_API_KEY` | OlonJS Cloud API key (optional) |
+| `ADMIN_PUBLIC_KEY` | Public key to protect `/admin` on Vercel deployments |
+
+---
+
+## Tech Stack
+
+- [Next.js 15](https://nextjs.org/) — App Router, RSC
+- [@olonjs/core](https://npmjs.com/package/@olonjs/core) — schema runtime and page resolution
+- [@olonjs/next](https://npmjs.com/package/@olonjs/next) — Next.js server utilities and admin middleware
+- [@olonjs/react](https://npmjs.com/package/@olonjs/react) — React rendering utilities
+- [@olonjs/studio](https://npmjs.com/package/@olonjs/studio) — visual CMS studio component
+- [Zod](https://zod.dev/) — schema validation
+- [Tailwind CSS v4](https://tailwindcss.com/) — styling
+- [shadcn/ui](https://ui.shadcn.com/) — UI primitives
+- [Framer Motion](https://www.framer.com/motion/) — animations
+
+---
+
+## Documentation
+
+Full documentation is available at the project's docs site. Topics include:
+
+- Getting started and Vercel deployment
+- Editing pages, blog posts, and projects
+- Using Studio CMS
+- Customizing theme, navigation, and sections
+- MCP manifests and AI discoverability
+- Schema validation and advanced configuration
+
+---
+
+## License
+
+See [LICENSE](./LICENSE).

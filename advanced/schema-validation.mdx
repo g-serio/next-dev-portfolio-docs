@@ -1,0 +1,161 @@
+---
+title: "Schema Validation: Type-Safe Content with Zod"
+sidebarTitle: "Schema Validation"
+description: "Every page section and collection in next-dev-portfolio is validated by a Zod schema. Learn how schemas protect your content and where to find them."
+---
+
+Every piece of content in next-dev-portfolio — blog posts, project case studies, and individual page sections — is validated against a Zod schema before your site builds. If any content file has a missing field, a wrong type, or an invalid value, the build fails immediately with a descriptive error. This means schema problems are caught before deployment, not discovered by visitors on your live site.
+
+## How Validation Works
+
+When you run `npm run build`, the prebuild step reads every JSON file in `src/data/` and checks each one against its corresponding Zod schema. Zod parses the data strictly: every required field must be present, every value must match its declared type, and any constraints (like URL format or minimum string length) must be satisfied.
+
+If all content passes validation, the build continues. If anything fails, you see a clear error message that names the file, the field, and what was expected — then the build stops. Nothing broken reaches production.
+
+<Note>
+  Schema validation also runs in the browser when you save content through Studio. Studio validates your changes against the same schema before sending them to the API, so most errors are caught before they ever reach a build.
+</Note>
+
+## Where Schemas Live
+
+Schemas are co-located with the code they describe, making them easy to find when you need to check a field definition.
+
+### Collection Schemas
+
+| File | Validates |
+|---|---|
+| `src/collections/posts/schema.ts` | Blog post entries |
+| `src/collections/projects/schema.ts` | Project and case study entries |
+
+**Blog post schema** (`src/collections/posts/schema.ts`) includes fields like:
+
+```typescript
+// Key fields in the post schema
+title: z.string().min(1),
+dek: z.string(),           // Subtitle / deck text
+date: z.string(),          // ISO date string
+readingTime: z.number(),   // In minutes
+tags: z.array(z.string()),
+body: z.string(),          // Markdown content
+image: z.string().url().optional(),
+```
+
+**Project schema** (`src/collections/projects/schema.ts`) includes fields like:
+
+```typescript
+// Key fields in the project schema
+id: z.string(),
+title: z.string().min(1),
+subtitle: z.string(),
+year: z.number(),          // Must be a number, not "2024"
+role: z.string(),
+context: z.string(),
+problem: z.string(),
+architecture: z.string(),
+result: z.string(),
+stack: z.array(z.string()),
+image: z.string().url().optional(),
+tags: z.array(z.string()),
+featured: z.boolean(),
+```
+
+### Section Schemas
+
+Each section type that can appear on a page has its own schema file:
+
+```
+src/components/page-hero/schema.ts
+src/components/skills-stack/schema.ts
+src/components/about-story/schema.ts
+src/components/philosophy/schema.ts
+src/components/work-timeline/schema.ts
+... (one schema file per section type)
+```
+
+These schemas define what props a section's content object must contain. They are also the source of truth for the JSON Schema files exposed at `/schemas/{slug}.schema.json`.
+
+### Schema Registry
+
+`src/lib/schemas.ts` exports a combined registry that maps every slug and section type to its Zod schema. The build pipeline and the Studio editor both use this registry to look up the right schema for any piece of content.
+
+## Public JSON Schemas
+
+The Zod schemas are converted to standard JSON Schema format and written to `public/schemas/` at build time. You can access them at:
+
+```
+GET /schemas/{slug}.schema.json
+```
+
+These files are useful for:
+
+- External validators and linters
+- Agent frameworks that consume JSON Schema contracts
+- IDE integrations that support JSON Schema for editing raw data files
+- Generating TypeScript types in other projects that consume your portfolio data
+
+<Tip>
+  The per-page JSON Schema files are linked from each page's `<head>` via `<link rel="olon-contract">`, making them auto-discoverable by tools that follow the OlonJS manifest convention.
+</Tip>
+
+## How Zod Protects Your Content
+
+Zod catches three broad categories of content mistake before they reach your live site:
+
+**Missing required fields.** If you create a blog post without a `title`, Zod throws immediately. You cannot accidentally publish content with blank titles or missing required metadata.
+
+**Wrong types.** If a project's `year` field is written as `"2024"` (a string) instead of `2024` (a number), Zod catches the mismatch. This is especially common when editing raw JSON files by hand.
+
+**Invalid values.** Fields with format constraints — like URLs — are checked against those constraints. A broken image URL becomes a build error, not a broken `<img>` tag.
+
+## Reading and Fixing Schema Errors
+
+When a schema validation error occurs during the build, you'll see output like this:
+
+```
+ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "number",
+    "received": "string",
+    "path": ["year"],
+    "message": "Expected number, received string"
+  }
+]
+ ↳ Failed to validate: src/data/projects/rewrite-2024.json
+```
+
+<Steps>
+  <Step title="Find the file named in the error">
+    The error output tells you which file failed validation. Open that file in your editor — in this example, `src/data/projects/rewrite-2024.json`.
+  </Step>
+  <Step title="Locate the field named in the path">
+    The `path` array in the Zod error shows the field name. Here, `["year"]` means the `year` field on the top-level object is the problem.
+  </Step>
+  <Step title="Fix the value to match the expected type">
+    The error says it expected a `number` but got a `string`. Change `"year": "2024"` to `"year": 2024` (remove the quotes) in your JSON file.
+  </Step>
+  <Step title="Cross-check with the schema file">
+    If the error message isn't clear, open the relevant schema file — `src/collections/projects/schema.ts` for projects — and read the Zod definition for the failing field to understand exactly what it accepts.
+  </Step>
+  <Step title="Re-run the build">
+    Run `npm run build` again. If all content now passes validation, the build will continue.
+  </Step>
+</Steps>
+
+### Common Errors and Fixes
+
+| Error message | Likely cause | Fix |
+|---|---|---|
+| `Expected string, received undefined` | Required field is missing | Add the field to your JSON file |
+| `Expected number, received string` | Number field is quoted | Remove quotes: `2024` not `"2024"` |
+| `Invalid url` | URL field has a malformed value | Ensure the value starts with `https://` |
+| `Expected array, received string` | Array field has a single string | Wrap the value: `["tag"]` not `"tag"` |
+| `String must contain at least 1 character(s)` | Required string is empty | Provide a non-empty value |
+
+## Generated JSON Schema Files
+
+The `public/schemas/` directory contains the JSON Schema equivalents of all your Zod schemas. Like the MCP manifests, these files are generated by the prebuild script and committed to your repository.
+
+<Warning>
+  Do not manually edit files in `public/schemas/`. They are overwritten on every `npm run build`. If you need to change a schema, update the Zod source file in `src/collections/` or `src/components/`, then rebuild.
+</Warning>

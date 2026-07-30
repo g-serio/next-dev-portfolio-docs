@@ -1,0 +1,173 @@
+---
+title: "Managing Blog Posts in next-dev-portfolio"
+sidebarTitle: "Blog Posts"
+description: "Add, edit, and remove blog posts by editing src/data/collections/posts/posts.json. Each post supports Markdown body, tags, images, and reading time."
+---
+
+All blog posts in next-dev-portfolio live in a single JSON file: `src/data/collections/posts/posts.json`. The file is a keyed object where each top-level key is the post's slug, and each value is a fully typed post record validated by a Zod schema at build time. Adding a new post is as simple as appending a new key-value pair to that object and running a rebuild.
+
+## File Location
+
+```
+src/data/collections/posts/posts.json
+```
+
+## Data Structure
+
+The top-level object is a map of `slug → post`. This makes look-ups O(1) and keeps the dynamic route `/blog/[slug]` simple — the renderer reads the key that matches the URL parameter.
+
+```json
+{
+  "your-post-slug": { ... },
+  "another-post-slug": { ... }
+}
+```
+
+### Required Fields
+
+Every post record must include all of the following fields. The Zod schema will reject the build if any required field is missing or has the wrong type.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Must match the top-level key exactly |
+| `title` | `string` | Display title shown in listings and at the top of the post |
+| `dek` | `string` | One-sentence sub-headline summarising the post's argument |
+| `date` | `string` | Publication date in `YYYY-MM-DD` format |
+| `readingTime` | `string` | Human-readable estimate, e.g. `"9 min"` |
+| `tags` | `string[]` | Array of lowercase tag strings used for filtering |
+| `body` | `string` | Full post content in Markdown (GitHub-flavored) |
+| `image` | `object` | Cover image — requires `url` and `alt` sub-fields |
+
+### The `body` Field
+
+The `body` field accepts GitHub-flavored Markdown rendered via **remark-gfm**. You can use all standard GFM features inside it:
+
+- Headings (`##`, `###`)
+- Fenced code blocks with language tags
+- Tables
+- Task lists
+- Bold, italic, inline code, and blockquotes
+
+Write the Markdown as a JSON string, using `\n` for newlines and `\n\n` for paragraph breaks.
+
+```json
+"body": "## The quiet failure mode\n\nMost content platforms fail the same way: a free-form blob field...\n\n```typescript\nconst schema = z.object({ title: z.string() });\n```"
+```
+
+### The `image` Object
+
+Each post requires a cover image object with two sub-fields:
+
+| Sub-field | Description |
+|---|---|
+| `url` | Absolute URL to the image. Unsplash works well — append `?w=1600&q=80` for optimal delivery. |
+| `alt` | Descriptive alt text for screen readers and SEO |
+
+```json
+"image": {
+  "url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&q=80",
+  "alt": "Laptop screen showing structured document markup"
+}
+```
+
+<Tip>
+  Use Unsplash source URLs and always append `?w=1600&q=80` to serve a web-optimized 1600 px wide JPEG. This keeps page weight low while preserving sharpness on retina displays.
+</Tip>
+
+## How Posts Are Displayed
+
+Posts surface in two places in the default layout:
+
+<CardGroup cols={2}>
+  <Card title="Blog list page — /blog" icon="list">
+    The `posts-list` section on `src/data/pages/blog.json` renders every post in reverse-chronological order. Tags are shown as clickable filter chips.
+  </Card>
+  <Card title="Home page — recent posts" icon="house">
+    The `recent-posts` section on `src/data/pages/home.json` shows the most recent N posts. Control the count with the `limit` field in that section's `data` object.
+  </Card>
+</CardGroup>
+
+To change how many posts appear in the home page teaser, open `src/data/pages/home.json` and update the `limit` value in the `recent-posts` section:
+
+```json
+{
+  "id": "recent-posts-1",
+  "type": "recent-posts",
+  "data": {
+    "heading": "Recent writing",
+    "limit": 4
+  }
+}
+```
+
+## Dynamic Route
+
+Every post is accessible at `/blog/[slug]`, where `[slug]` is the top-level key in `posts.json`. The template file at `src/data/pages/blog/[slug].json` configures the `post-detail` section that renders the full article body.
+
+<Note>
+  The slug key and the `id` field must always match. Mismatched values will cause the detail page to fail its schema validation at build time.
+</Note>
+
+## Adding a New Post
+
+<Steps>
+  <Step title="Open posts.json">
+    Open `src/data/collections/posts/posts.json` in your editor.
+  </Step>
+  <Step title="Append a new entry">
+    Copy an existing post object, paste it as a new key-value pair at the end of the top-level object, and update every field. Choose a slug that is URL-safe: lowercase letters, numbers, and hyphens only.
+
+    ```json
+    {
+      "existing-post-slug": { ... },
+      "my-new-post-slug": {
+        "id": "my-new-post-slug",
+        "title": "Your post title here",
+        "dek": "A single sentence that captures the post's core argument.",
+        "date": "2026-06-01",
+        "readingTime": "7 min",
+        "tags": ["tag-one", "tag-two"],
+        "body": "## Introduction\n\nYour post body in Markdown goes here.",
+        "image": {
+          "url": "https://images.unsplash.com/photo-XXXXXXXXXXXXXXXXXX?w=1600&q=80",
+          "alt": "Descriptive alt text for the cover image"
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step title="Rebuild the site">
+    ```bash
+    npm run build
+    ```
+    The build pipeline validates every post against the Zod schema. If a required field is missing or a type is wrong, you'll see a descriptive error pointing to the exact field.
+  </Step>
+</Steps>
+
+## Removing a Post
+
+Delete the entire key-value pair from `posts.json`, then rebuild. The post will no longer appear in listings or be accessible at its `/blog/[slug]` URL.
+
+<Warning>
+  Removing a post that is linked from another page (for example, a hand-crafted link in a `cta-band` section) will produce a broken link. Search for the slug across your `src/data/pages/` files before deleting.
+</Warning>
+
+## Complete Post Example
+
+```json
+{
+  "schema-driven-content": {
+    "id": "schema-driven-content",
+    "title": "Schema-driven content is the missing layer",
+    "dek": "Why treating page sections as typed contracts beats free-form CMS blobs.",
+    "date": "2026-03-12",
+    "readingTime": "9 min",
+    "tags": ["schemas", "cms", "content-infra"],
+    "body": "## The quiet failure mode\n\nMost content platforms fail the same way: a free-form blob field that grows until nobody knows what lives inside it.\n\n## Typed contracts as the fix\n\nWhen every section has a Zod schema, the editor *cannot* publish a page with a missing headline. The contract is the documentation.\n\n```typescript\nconst HeroSchema = z.object({\n  title: z.string(),\n  titleHighlight: z.string(),\n  description: z.string()\n});\n```\n\n## The result\n\nPublish errors dropped 40% in the first sprint after we introduced collection schemas.",
+    "image": {
+      "url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&q=80",
+      "alt": "Laptop showing structured documents on a dark background"
+    }
+  }
+}
+```

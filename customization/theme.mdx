@@ -1,0 +1,280 @@
+---
+title: "Customize Colors, Typography, and Spacing in Your Portfolio"
+sidebarTitle: "Theme"
+description: "Edit src/data/config/theme.json to change your portfolio's colors, fonts, border radius, spacing, and light/dark mode tokens."
+---
+
+Your portfolio's entire visual identity — colors, fonts, spacing, and border radius — is controlled by a single file: `src/data/config/theme.json`. The token system inside this file maps directly to CSS custom properties (`--var` declarations) that are generated at build time by `serializeThemeRootCss`. You never need to touch a stylesheet directly; edit the tokens and let the build system handle the rest.
+
+## Where the Theme File Lives
+
+```
+src/
+└── data/
+    └── config/
+        └── theme.json   ← edit this file
+```
+
+Open `theme.json` and you'll find a `tokens` object with four top-level sections: `colors`, `typography`, `borderRadius`, `spacing`, and a nested `modes` object for light-mode overrides.
+
+---
+
+## Color Tokens
+
+The `tokens.colors` object defines the **default (dark mode)** palette. Each key becomes a CSS variable that components reference throughout the site.
+
+| Token | Purpose |
+|---|---|
+| `background` | Page background — the base canvas color |
+| `foreground` | Primary text color on the background |
+| `primary` | Accent color for links, highlights, and active states |
+| `primary-foreground` | Text rendered on top of a `primary`-colored surface |
+| `primary-light` | Lighter tint of the accent, used for hover states |
+| `primary-dark` | Darker shade of the accent, used for pressed states |
+| `card` | Background of card and panel surfaces |
+| `muted` | Subtle background for code blocks and secondary panels |
+| `muted-foreground` | De-emphasized text (captions, placeholders, metadata) |
+| `border` | Color of dividers, input borders, and outlines |
+
+```json
+"colors": {
+  "background": "#0a0a0a",
+  "foreground": "#e8e8e6",
+  "primary": "#3ddc84",           // ← your main accent color
+  "primary-foreground": "#06140c",
+  "primary-light": "#6ee7a8",
+  "primary-dark": "#22a35c",
+  "card": "#111111",
+  "muted": "#151515",
+  "muted-foreground": "#8a8a86",
+  "border": "#242424"
+}
+```
+
+---
+
+## Dark Mode and Light Mode
+
+The default colors in `tokens.colors` serve as the **dark mode** palette. Light mode overrides live under `tokens.modes.light.colors` and replace only the tokens you specify — any token you omit inherits its dark-mode value.
+
+```json
+"modes": {
+  "light": {
+    "colors": {
+      "background": "#f7f7f5",
+      "foreground": "#121212",
+      "primary": "#0f7a45"
+    }
+  }
+}
+```
+
+The override is applied automatically when the user's system reports `prefers-color-scheme: light`. You don't need to add any logic — the build system emits both sets of CSS variables scoped to the correct media query.
+
+<Info>
+  You only need to override tokens that actually differ between modes. If your `card`, `border`, and `muted` colors work in both contexts, leave them out of `modes.light.colors` entirely.
+</Info>
+
+---
+
+## Changing Your Primary Accent Color
+
+The `primary` token is the most impactful single change you can make. It controls link colors, highlighted text, button backgrounds, and active states. Update it in both dark and light contexts for a consistent result.
+
+<Steps>
+  <Step title="Open theme.json">
+    Navigate to `src/data/config/theme.json` in your editor.
+  </Step>
+  <Step title="Update the dark-mode accent">
+    Change `tokens.colors.primary` to your chosen hex value. Adjust `primary-light` (lighter tint) and `primary-dark` (darker shade) to complement it.
+
+    ```json
+    "colors": {
+      "primary": "#6366f1",       // indigo accent
+      "primary-foreground": "#ffffff",
+      "primary-light": "#818cf8",
+      "primary-dark": "#4f46e5"
+    }
+    ```
+  </Step>
+  <Step title="Update the light-mode accent">
+    Set a slightly darker value under `tokens.modes.light.colors.primary` so it stays readable on a light background.
+
+    ```json
+    "modes": {
+      "light": {
+        "colors": {
+          "primary": "#4f46e5"
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step title="Rebuild">
+    Save the file and run your build command. The new CSS variables will be emitted automatically.
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  Theme changes require a rebuild to take effect. Editing `theme.json` while the dev server is running will hot-reload the page, but if you are generating a production build you must re-run `npm run build`.
+</Warning>
+
+---
+
+## Typography Tokens
+
+Font families are declared under `tokens.typography.fontFamily`. Each value is a full CSS `font-family` string, including fallbacks.
+
+| Token | Role | Default |
+|---|---|---|
+| `fontFamily.primary` | Body text and UI elements | `'Instrument Sans', system-ui, sans-serif` |
+| `fontFamily.mono` | Code blocks and technical labels | `'JetBrains Mono', monospace` |
+| `fontFamily.display` | Large headings and hero titles | `'Instrument Serif', system-ui, serif` |
+
+```json
+"typography": {
+  "fontFamily": {
+    "primary": "'Instrument Sans', system-ui, sans-serif",
+    "mono": "'JetBrains Mono', monospace",
+    "display": "'Instrument Serif', system-ui, serif"
+  }
+}
+```
+
+### Using Google Fonts
+
+To swap in a Google Font, update the font-family string in `theme.json` and add the `@import` to your global stylesheet.
+
+<Steps>
+  <Step title="Choose your font on Google Fonts">
+    Pick a font (for example, **Inter** for `primary` or **Fraunces** for `display`) and copy the import URL from the Google Fonts "Use on the web" panel.
+  </Step>
+  <Step title="Add the import to globals.css">
+    Open `app/globals.css` and add the `@import` at the very top of the file.
+
+    ```css
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    ```
+  </Step>
+  <Step title="Update the token in theme.json">
+    Replace the `fontFamily.primary` value with the new font name and its fallbacks.
+
+    ```json
+    "fontFamily": {
+      "primary": "'Inter', system-ui, sans-serif"
+    }
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+  Always include a generic fallback (`sans-serif`, `serif`, or `monospace`) as the last entry in your font-family string. This ensures readable text renders immediately before the web font loads.
+</Tip>
+
+---
+
+## Border Radius Tokens
+
+The `tokens.borderRadius` object controls the roundness of cards, buttons, inputs, and other UI elements.
+
+| Token | Value | Used for |
+|---|---|---|
+| `sm` | `2px` | Subtle rounding on tags and badges |
+| `md` | `4px` | Inputs, small buttons |
+| `lg` | `6px` | Cards and panels |
+| `xl` | `10px` | Feature cards and modals |
+| `full` | `9999px` | Pill-shaped buttons and avatar circles |
+
+```json
+"borderRadius": {
+  "sm": "2px",
+  "md": "4px",
+  "lg": "6px",
+  "xl": "10px",
+  "full": "9999px"
+}
+```
+
+To give your portfolio a sharper, more editorial look, reduce all values toward `0px`. For a softer, more rounded aesthetic, increase `lg` and `xl`.
+
+---
+
+## Spacing Tokens
+
+The `tokens.spacing` object controls three layout-level dimensions that affect the overall density and rhythm of every page.
+
+| Token | Default | Controls |
+|---|---|---|
+| `container-max` | `1200px` | Maximum width of the content container |
+| `section-y` | `96px` | Vertical padding applied to each page section |
+| `header-h` | `80px` | Height of the sticky header bar |
+
+```json
+"spacing": {
+  "container-max": "1200px",
+  "section-y": "96px",
+  "header-h": "80px"
+}
+```
+
+<Note>
+  Changing `header-h` also affects scroll-offset calculations for anchor links. If you adjust this value, verify that in-page navigation (e.g., `#contact`) still scrolls to the correct position.
+</Note>
+
+---
+
+## Complete theme.json Reference
+
+Below is the full annotated structure for reference:
+
+```json
+{
+  "name": "Your Portfolio Name",
+  "tokens": {
+    "colors": {
+      "background": "#0a0a0a",           // page canvas
+      "foreground": "#e8e8e6",           // primary text
+      "primary": "#3ddc84",              // accent / brand color
+      "primary-foreground": "#06140c",   // text on primary backgrounds
+      "primary-light": "#6ee7a8",        // lighter accent tint
+      "primary-dark": "#22a35c",         // darker accent shade
+      "card": "#111111",                 // card / panel backgrounds
+      "muted": "#151515",                // secondary panel backgrounds
+      "muted-foreground": "#8a8a86",     // de-emphasized text
+      "border": "#242424"                // dividers and outlines
+    },
+    "typography": {
+      "fontFamily": {
+        "primary": "'Instrument Sans', system-ui, sans-serif",
+        "mono": "'JetBrains Mono', monospace",
+        "display": "'Instrument Serif', system-ui, serif"
+      }
+    },
+    "borderRadius": {
+      "sm": "2px",
+      "md": "4px",
+      "lg": "6px",
+      "xl": "10px",
+      "full": "9999px"
+    },
+    "spacing": {
+      "container-max": "1200px",
+      "section-y": "96px",
+      "header-h": "80px"
+    },
+    "modes": {
+      "light": {
+        "colors": {
+          "background": "#f7f7f5",       // override for light mode
+          "foreground": "#121212",
+          "primary": "#0f7a45"
+        }
+      }
+    }
+  }
+}
+```

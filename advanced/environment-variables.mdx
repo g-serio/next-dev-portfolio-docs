@@ -1,0 +1,121 @@
+---
+title: "Environment Variables for next-dev-portfolio"
+sidebarTitle: "Environment Variables"
+description: "Configure next-dev-portfolio with environment variables to enable Save2Repo, OlonJS Cloud, and admin access protection on your Vercel deployment."
+---
+
+Environment variables control three key behaviors in next-dev-portfolio: where your content data comes from at runtime (the *boot source*), whether Studio edits are committed back to your GitHub repository, and how the `/admin` route is protected on Vercel deployments. You configure these in your Vercel project settings or in a local `.env.local` file.
+
+## Variable Reference
+
+<ParamField query="NEXT_PUBLIC_OLONJS_SAVE2REPO" type="boolean" default="false">
+  Set to `true` to enable Save2Repo mode. When active, saving content in Studio commits the changes directly to your GitHub repository instead of writing them to disk. This variable is set automatically when you install the OlonJS Vercel integration.
+</ParamField>
+
+<ParamField query="NEXT_PUBLIC_OLONJS_CLOUD_URL" type="string">
+  The base URL for the OlonJS Cloud API (for example, `https://api.olonjs.com`). Required for both Save2Repo and Live boot modes. When omitted, the site boots in Local mode and reads data from `src/data/` files.
+</ParamField>
+
+<ParamField query="NEXT_PUBLIC_OLONJS_API_KEY" type="string">
+  Your OlonJS Cloud API key. Required alongside `NEXT_PUBLIC_OLONJS_CLOUD_URL` for Save2Repo and Live modes. Keep this value private — do not commit it to your repository.
+</ParamField>
+
+<ParamField query="ADMIN_PUBLIC_KEY" type="string">
+  A public key used to protect the `/admin` route. When this variable is set and `VERCEL_ENV` is present, the admin route requires authentication. Leave it unset during local development to access admin without auth.
+</ParamField>
+
+<ParamField query="VERCEL_ENV" type="string">
+  Automatically set by Vercel to `production`, `preview`, or `development`. next-dev-portfolio uses this to determine whether admin authentication should be enforced. You do not set this manually.
+</ParamField>
+
+### Legacy Aliases
+
+The following variable names are supported as aliases for the `OLONJS_`-prefixed names above. They work identically — use whichever name your existing setup already references.
+
+| Legacy variable | Equivalent to |
+|---|---|
+| `NEXT_PUBLIC_JSONPAGES_CLOUD_URL` | `NEXT_PUBLIC_OLONJS_CLOUD_URL` |
+| `NEXT_PUBLIC_JSONPAGES_API_KEY` | `NEXT_PUBLIC_OLONJS_API_KEY` |
+| `NEXT_PUBLIC_SAVE2REPO` | `NEXT_PUBLIC_OLONJS_SAVE2REPO` |
+
+<Note>
+  If both an `OLONJS_`-prefixed variable and its legacy alias are set, the `OLONJS_` version takes precedence.
+</Note>
+
+## Boot Modes
+
+At runtime, next-dev-portfolio resolves a *boot source* based on which environment variables are present. The boot source determines where page data comes from and how Studio saves are handled.
+
+### Local (no cloud variables set)
+
+When neither `NEXT_PUBLIC_OLONJS_CLOUD_URL` nor its legacy alias is configured, the site runs in Local mode.
+
+- Page data is read from the JSON files in `src/data/`
+- Studio edits write directly to those files on disk
+- No network requests are made to any external API
+- Ideal for local development and for forks that don't use OlonJS Cloud
+
+### Save2Repo (`SAVE2REPO=true` + cloud variables)
+
+When `NEXT_PUBLIC_OLONJS_SAVE2REPO` is `true` and cloud variables are configured, the site runs in Save2Repo mode.
+
+- Page data is served from the baked static JSON files in `public/`
+- Studio edits are sent to OlonJS Cloud, which commits the updated JSON to your GitHub repository and triggers a new Vercel deployment
+- This is the recommended mode for deployed portfolios managed through the Vercel integration
+- The OlonJS Vercel integration sets all required variables automatically during setup
+
+### Live (cloud variables set, Save2Repo not enabled)
+
+When cloud variables are configured but `NEXT_PUBLIC_OLONJS_SAVE2REPO` is not `true`, the site runs in Live mode.
+
+- Page data is fetched from the OlonJS Cloud API on each request
+- Studio edits update the cloud data source immediately, without a redeploy
+- Useful for dynamic content that should update without a new build
+
+<Info>
+  The boot mode is logged to the server console on startup. If your content isn't loading as expected, check the boot mode log to confirm which source is being used.
+</Info>
+
+## Setting Variables on Vercel
+
+<Steps>
+  <Step title="Open your project settings">
+    Go to your project in the [Vercel Dashboard](https://vercel.com/dashboard) and click **Settings** in the top navigation.
+  </Step>
+  <Step title="Navigate to Environment Variables">
+    Select **Environment Variables** from the left sidebar.
+  </Step>
+  <Step title="Add each variable">
+    Enter the variable name and value. Choose which environments (Production, Preview, Development) the variable applies to. For `NEXT_PUBLIC_OLONJS_API_KEY`, set it on Production and Preview but consider whether to expose it in Development.
+  </Step>
+  <Step title="Redeploy your project">
+    Click **Redeploy** on your latest deployment (or push a new commit) to apply the new variables. Environment variables with the `NEXT_PUBLIC_` prefix are bundled into the client-side JavaScript at build time — a redeploy is required for changes to take effect.
+  </Step>
+</Steps>
+
+<Warning>
+  `NEXT_PUBLIC_*` variables are embedded into your site's JavaScript bundle at build time and are visible to anyone who inspects your site's source. Do not store secrets or private tokens in `NEXT_PUBLIC_*` variables. Use `NEXT_PUBLIC_OLONJS_API_KEY` only with keys that are scoped to read/write operations your public visitors are allowed to trigger.
+</Warning>
+
+## Local Development
+
+For local development, create a `.env.local` file in the root of your project. This file is gitignored by default and should never be committed.
+
+```bash
+# .env.local — never commit this file
+
+# Run in Local mode (default — no cloud needed)
+# Leave cloud vars unset to read from src/data/
+
+# Or configure Save2Repo / Live mode:
+NEXT_PUBLIC_OLONJS_CLOUD_URL=https://api.olonjs.com
+NEXT_PUBLIC_OLONJS_API_KEY=your-api-key-here
+NEXT_PUBLIC_OLONJS_SAVE2REPO=true
+
+# Protect /admin in local testing (optional)
+ADMIN_PUBLIC_KEY=your-public-key-here
+```
+
+<Tip>
+  During local development, `VERCEL_ENV` is not set, so admin authentication is not enforced even if `ADMIN_PUBLIC_KEY` is present. You can access `/admin` freely in your local environment.
+</Tip>

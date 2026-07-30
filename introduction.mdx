@@ -1,0 +1,142 @@
+---
+title: "next-dev-portfolio: Schema-Driven Portfolio on Vercel"
+sidebarTitle: "Introduction"
+description: "next-dev-portfolio is a Next.js portfolio template with a built-in CMS, blog, case studies, and one-click Vercel deployment powered by OlonJS."
+---
+
+**next-dev-portfolio** is a production-ready Next.js 15 portfolio template built for developers who want a professional online presence without wrestling with a database, a headless CMS subscription, or bespoke deployment pipelines. Everything — your bio, case studies, blog posts, and contact details — lives in plain JSON files inside your own GitHub repository, validated by Zod schemas and rendered by a modern React front end. Deploy it to Vercel in a single click, then edit your content visually through the built-in Studio CMS at `/admin`. Every save commits straight back to your repo.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="One-Click Vercel Deploy" icon="rocket">
+    Clone the repo and deploy to a live `.vercel.app` domain in under five minutes. The Save2Repo Vercel integration is installed automatically — no manual configuration required.
+  </Card>
+  <Card title="Built-In Visual Studio CMS" icon="pen-to-square">
+    A fully featured content editor lives at `/admin` on your deployed site. Edit any section of any page, preview your changes, and save — all without touching a code editor.
+  </Card>
+  <Card title="Schema-Validated Content" icon="shield-check">
+    Every piece of content is validated by a Zod schema at build time. Silent content drift and mismatched field names are impossible — the build fails loudly instead.
+  </Card>
+  <Card title="Blog with Markdown Support" icon="newspaper">
+    Write posts in Markdown or MDX. The blog supports tags, publication dates, cover images, and reading-time estimates out of the box.
+  </Card>
+  <Card title="Case Study Portfolio" icon="briefcase">
+    Showcase your best work with rich case study pages that support project metadata, role, timeline, technology stack, and embedded media.
+  </Card>
+  <Card title="MCP Manifests for AI Agents" icon="robot">
+    Automatically generated MCP manifests and an `llms.txt` file make your portfolio discoverable by AI agents and LLM-powered tools.
+  </Card>
+  <Card title="Automatic SEO Pipeline" icon="magnifying-glass">
+    JSON-LD structured data, a generated `sitemap.xml`, and a `robots.txt` are produced at build time — no plugins, no third-party services.
+  </Card>
+  <Card title="No Database Required" icon="database">
+    All content is stored as flat JSON files in `src/data/`. You own every byte in your own GitHub repository, with a full version-control history.
+  </Card>
+</CardGroup>
+
+## Architecture Overview
+
+next-dev-portfolio is divided into two surfaces: the **visitor-facing site** and the **Studio CMS**.
+
+### Visitor Surface
+
+The public pages are standard Next.js App Router routes rendered at build time (static generation) or on-demand. They read their data from baked JSON files in the `public/` directory, so every page load is fast, edge-cacheable, and requires no runtime database query.
+
+```
+Browser → Vercel Edge CDN → Static HTML + JSON
+```
+
+Pages included out of the box:
+
+| Route | Purpose |
+|---|---|
+| `/` | Hero, skills, featured work |
+| `/about` | Bio, experience timeline, tech stack |
+| `/work` | Case study index and individual case study pages |
+| `/blog` | Post index and individual post pages |
+| `/contact` | Contact form backed by a serverless API route |
+
+### Studio CMS
+
+Studio is a Next.js route group (`/admin`) powered by `@olonjs/studio`. It provides a visual interface for every content schema defined in `src/data/`. No separate server is required — Studio runs inside the same Next.js application.
+
+```
+Browser → /admin → @olonjs/studio UI → JSON file patch → Save2Repo commit
+```
+
+<Note>
+  When `VERCEL_ENV` is set (i.e., on a deployed Vercel instance), Studio requires the `ADMIN_PUBLIC_KEY` environment variable to restrict access to the `/admin` route. On `localhost`, Studio is open by default.
+</Note>
+
+## How Content Works
+
+All editable content lives in `src/data/` as JSON files. Each file corresponds to a page section or a content collection:
+
+```
+src/data/
+├── site.json          # Global site metadata
+├── home.json          # Hero, skills, featured items
+├── about.json         # Bio, timeline, stack
+├── work/
+│   └── *.json         # One file per case study
+├── blog/
+│   └── *.json         # One file per blog post
+└── contact.json       # Contact page copy
+```
+
+During the build (`npm run build`), the OlonJS prebuild pipeline:
+
+1. **Validates** every file against its Zod schema — the build fails if any field is invalid or missing.
+2. **Bakes** the validated data to `public/data/` so static pages can fetch it at runtime without a server.
+3. **Generates** `sitemap.xml`, `robots.txt`, `llms.txt`, and JSON-LD metadata from the content.
+
+Because schemas are enforced at build time, you always know exactly what shape your data is in. There is no silent content drift.
+
+## The Save2Repo Flow
+
+When you edit content in Studio on your deployed Vercel site, the following happens:
+
+```
+Studio UI (edit field)
+  → @olonjs/core patches the in-memory JSON object
+  → @olonjs/next writes the updated JSON to a Vercel API route
+  → Save2Repo integration commits the file to your GitHub repo
+  → Vercel detects the new commit and triggers a redeployment
+  → Your live site reflects the change within ~30 seconds
+```
+
+This means Studio edits are **never lost**. Every save is a real Git commit with a timestamp and message. You can roll back to any previous version of your content using standard Git tooling.
+
+<Tip>
+  Because Save2Repo writes directly to your default branch, you can also open the JSON files in your editor, make changes, and push — Studio and your codebase stay in sync automatically.
+</Tip>
+
+## TypeScript End-to-End
+
+next-dev-portfolio is written entirely in TypeScript. The Zod schemas used for validation also generate TypeScript types, so your React components are fully typed against your content model. Refactoring a content schema surfaces type errors in your components immediately — no runtime surprises.
+
+```typescript
+// Example: inferred type from the Zod schema
+import type { HomeData } from "@olonjs/core/schemas";
+
+// homeData is fully typed — autocomplete works everywhere
+const homeData: HomeData = await getHomeData();
+```
+
+## OlonJS Packages
+
+next-dev-portfolio is assembled from four focused OlonJS packages:
+
+| Package | Role |
+|---|---|
+| `@olonjs/core` | Zod schemas, content loaders, type definitions |
+| `@olonjs/next` | Next.js-specific helpers, prebuild pipeline, API routes |
+| `@olonjs/react` | UI component library for portfolio sections |
+| `@olonjs/studio` | Visual CMS editor, schema-driven form generation |
+
+You interact with these packages through the template — you don't need to configure them directly unless you want to extend the schemas or add custom sections.
+
+## Ready to Get Started?
+
+The fastest way to launch your portfolio is the one-click Vercel deploy. Head to the [Quickstart](/quickstart) to have your site live in under five minutes.

@@ -1,0 +1,315 @@
+---
+title: "Portfolio Page Sections: Types, Fields, and Settings"
+sidebarTitle: "Sections"
+description: "Each portfolio page is composed of sections. Learn all available section types, their data fields, settings options, and how to compose pages from sections."
+---
+
+Every page in your portfolio is built from an ordered array of sections. Each section is a self-contained block — a hero banner, a skills grid, a CTA strip — and you compose pages by stacking these blocks in whatever order and combination you need. You never edit templates or components directly; you only add, remove, reorder, or configure section objects in your page JSON files.
+
+## How Sections Work
+
+A page's `sections` array is rendered sequentially from top to bottom. Each section object requires four fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique identifier for this section instance |
+| `type` | string | The section template to use (see the reference table below) |
+| `data` | object | Content fields specific to this section type |
+| `settings` | object | Layout options applied to the section wrapper |
+
+```json
+{
+  "sections": [
+    {
+      "id": "hero-main",
+      "type": "home-hero",
+      "data": { ... },
+      "settings": { "paddingTop": "lg", "paddingBottom": "lg" }
+    },
+    {
+      "id": "bio-intro",
+      "type": "bio-band",
+      "data": { ... },
+      "settings": { "paddingTop": "md", "paddingBottom": "md" }
+    }
+  ]
+}
+```
+
+---
+
+## The `settings` Object
+
+Every section accepts a `settings` object that controls its vertical breathing room.
+
+| Property | Accepted values | Description |
+|---|---|---|
+| `paddingTop` | `sm`, `md`, `lg` | Space above the section content |
+| `paddingBottom` | `sm`, `md`, `lg` | Space below the section content |
+
+Use `lg` for hero sections and major transitions, `md` for standard content sections, and `sm` when two related sections should sit close together (for example, a heading section followed immediately by its content).
+
+---
+
+## Section Type Reference
+
+| Section type | Key `data` fields |
+|---|---|
+| `home-hero` | `label`, `title`, `titleHighlight`, `description`, `primaryCta`, `secondaryCta` |
+| `page-hero` | `label`, `title`, `description` |
+| `featured-projects` | `label`, `title`, `description`, `limit`, `items` |
+| `recent-posts` | `label`, `title`, `limit`, `items` |
+| `bio-band` | `label`, `title`, `body`, `image`, `cta` |
+| `cta-band` | `title`, `description`, `primaryCta` |
+| `about-story` | `label`, `title`, `body`, `image` |
+| `skills-stack` | `label`, `title`, `items` |
+| `philosophy` | `label`, `title`, `items` |
+| `posts-list` | *(uses collection reference — no manual `data` required)* |
+| `projects-list` | *(uses collection reference — no manual `data` required)* |
+| `post-detail` | *(rendered from blog post data automatically)* |
+| `project-detail` | *(rendered from project data automatically)* |
+| `contact-form` | *(static form — no `data` configuration required)* |
+
+---
+
+## CTA Objects
+
+Several section types accept CTA (call-to-action) button configurations. Every CTA follows the same shape:
+
+```json
+{
+  "id": "cta-view-work",
+  "label": "View My Work",
+  "href": "/work",
+  "variant": "primary"
+}
+```
+
+| Field | Description |
+|---|---|
+| `id` | Unique identifier for this CTA instance |
+| `label` | Button text shown to visitors |
+| `href` | Destination — internal path or full external URL |
+| `variant` | `"primary"` (filled, accent color) or `"secondary"` (outlined) |
+
+Use `primary` for the most important action in a section and `secondary` for a supporting option alongside it.
+
+---
+
+## Image Objects
+
+Any section that accepts an image uses the same two-field shape:
+
+```json
+{
+  "url": "https://images.unsplash.com/photo-xxxxx?w=800",
+  "alt": "Descriptive text for screen readers"
+}
+```
+
+You can use any publicly accessible image URL — Unsplash, your own CDN, or assets you've placed in the `/public` directory (reference them as `"/images/your-photo.jpg"`). Always fill in `alt` with a meaningful description.
+
+---
+
+## Section Deep Dives
+
+### `home-hero`
+
+The full-bleed opening section of your home page. The `titleHighlight` value is a word or short phrase that appears within the `title` string — the site renders it in the primary accent color.
+
+```json
+{
+  "id": "hero-home",
+  "type": "home-hero",
+  "data": {
+    "label": "Full-Stack Engineer",
+    "title": "I build things for the",         // ← full title string
+    "titleHighlight": "modern web",            // ← this phrase gets the accent color
+    "description": "I design and develop web applications that are fast, accessible, and enjoyable to use.",
+    "primaryCta": {
+      "id": "hero-cta-work",
+      "label": "See My Work",
+      "href": "/work",
+      "variant": "primary"
+    },
+    "secondaryCta": {
+      "id": "hero-cta-contact",
+      "label": "Get In Touch",
+      "href": "/contact",
+      "variant": "secondary"
+    }
+  },
+  "settings": { "paddingTop": "lg", "paddingBottom": "lg" }
+}
+```
+
+<Tip>
+  Keep `titleHighlight` to two or three words maximum. Highlighting too much of the title dilutes the emphasis and the visual impact of the accent color.
+</Tip>
+
+---
+
+### `bio-band`
+
+A two-column section pairing a portrait image with a short biography and a single CTA button. Commonly placed on the home page as an "about me" teaser, or at the top of the About page.
+
+```json
+{
+  "id": "bio-intro",
+  "type": "bio-band",
+  "data": {
+    "label": "About Me",
+    "title": "Engineer by trade, designer by habit",
+    "body": "I have been building web products for over eight years, with a focus on developer experience, system design, and shipping things that actually work in production.",
+    "image": {
+      "url": "https://images.unsplash.com/photo-xxxxx?w=640",
+      "alt": "Photo of me at my desk"
+    },
+    "cta": {
+      "id": "bio-cta",
+      "label": "More About Me",
+      "href": "/about",
+      "variant": "secondary"
+    }
+  },
+  "settings": { "paddingTop": "md", "paddingBottom": "md" }
+}
+```
+
+---
+
+### `skills-stack`
+
+A grid of skill cards, each showing a label, category badge, and Lucide icon. Group related skills by setting the same `category` value — the layout uses categories to organize cards visually.
+
+```json
+{
+  "id": "skills-main",
+  "type": "skills-stack",
+  "data": {
+    "label": "Skills",
+    "title": "What I Work With",
+    "items": [
+      { "id": "sk-ts",     "label": "TypeScript",  "category": "Language",     "icon": "code" },
+      { "id": "sk-react",  "label": "React",       "category": "Frontend",     "icon": "braces" },
+      { "id": "sk-node",   "label": "Node.js",     "category": "Backend",      "icon": "server" },
+      { "id": "sk-pg",     "label": "PostgreSQL",  "category": "Database",     "icon": "database" },
+      { "id": "sk-aws",    "label": "AWS",         "category": "Cloud",        "icon": "cloud" },
+      { "id": "sk-docker", "label": "Docker",      "category": "DevOps",       "icon": "boxes" },
+      { "id": "sk-gha",    "label": "GitHub Actions", "category": "DevOps",   "icon": "workflow" },
+      { "id": "sk-edge",   "label": "Edge Runtime","category": "Infrastructure","icon": "cpu" }
+    ]
+  },
+  "settings": { "paddingTop": "md", "paddingBottom": "md" }
+}
+```
+
+The `icon` field accepts any [Lucide](https://lucide.dev/icons/) icon name in kebab-case. Common choices: `code`, `braces`, `server`, `database`, `cloud`, `cpu`, `workflow`, `boxes`.
+
+---
+
+### `philosophy`
+
+A list of named principles or beliefs — each item has a short `title` and a longer `body` sentence. Use this section to convey your working values or approach to craft.
+
+```json
+{
+  "id": "philosophy-main",
+  "type": "philosophy",
+  "data": {
+    "label": "How I Work",
+    "title": "Principles I Build By",
+    "items": [
+      {
+        "id": "ph-1",
+        "title": "One source of truth",
+        "body": "If a field exists in three places, it will disagree. Centralize data and derive everything else from it."
+      },
+      {
+        "id": "ph-2",
+        "title": "Ship, then improve",
+        "body": "A working thing in production teaches you more than a perfect thing in a branch."
+      },
+      {
+        "id": "ph-3",
+        "title": "Boring is underrated",
+        "body": "Reach for proven tools before novel ones. Novelty has a maintenance cost."
+      }
+    ]
+  },
+  "settings": { "paddingTop": "md", "paddingBottom": "md" }
+}
+```
+
+<Tip>
+  Four to six philosophy items is the sweet spot. Fewer feels sparse; more dilutes each principle's weight.
+</Tip>
+
+---
+
+### `cta-band`
+
+A full-width strip with a heading, supporting text, and a single prominent CTA button. Place it at the bottom of key pages (home, about, work) to give visitors a clear next step.
+
+```json
+{
+  "id": "cta-hire",
+  "type": "cta-band",
+  "data": {
+    "title": "Let's build something together",
+    "description": "I'm currently open to new projects and full-time opportunities. Reach out and let's talk.",
+    "primaryCta": {
+      "id": "cta-band-contact",
+      "label": "Get In Touch",
+      "href": "/contact",
+      "variant": "primary"
+    }
+  },
+  "settings": { "paddingTop": "lg", "paddingBottom": "lg" }
+}
+```
+
+---
+
+## Adding a New Section to a Page
+
+<Steps>
+  <Step title="Open the page JSON file">
+    Navigate to the relevant page file under `src/data/pages/`. For example, `src/data/pages/home.json`.
+  </Step>
+  <Step title="Append a new section object">
+    Add a new object to the `sections` array. Give it a unique `id`, choose a `type` from the reference table, and fill in the required `data` fields.
+
+    ```json
+    {
+      "id": "my-new-section",
+      "type": "cta-band",
+      "data": {
+        "title": "Ready to collaborate?",
+        "description": "My inbox is open.",
+        "primaryCta": {
+          "id": "new-cta",
+          "label": "Say Hello",
+          "href": "/contact",
+          "variant": "primary"
+        }
+      },
+      "settings": { "paddingTop": "lg", "paddingBottom": "lg" }
+    }
+    ```
+  </Step>
+  <Step title="Reorder if needed">
+    Drag the object to the correct position within the `sections` array. Sections render in array order, top to bottom.
+  </Step>
+  <Step title="Save and preview">
+    Save the file. The dev server will hot-reload and display your new section in context.
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  Every section `id` must be unique within the page. Duplicate IDs cause React key conflicts and may produce unexpected rendering behaviour.
+</Warning>
