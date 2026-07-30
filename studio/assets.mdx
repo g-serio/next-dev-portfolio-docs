@@ -51,11 +51,11 @@ In Save2Repo mode, assets become part of your repository's version history. Ever
 
 Studio uses three protected API routes to manage assets and content. All routes require an authenticated session on Vercel deployments.
 
-| Method   | Endpoint              | Purpose                                      |
-| -------- | --------------------- | -------------------------------------------- |
-| `POST`   | `/api/upload-asset`   | Upload a media file to the project           |
-| `GET`    | `/api/list-assets`    | Return a list of all uploaded files          |
-| `POST`   | `/api/save-to-file`   | Persist page or section edits to JSON        |
+| Method   | Endpoint              | Purpose                                                                          |
+| -------- | --------------------- | -------------------------------------------------------------------------------- |
+| `POST`   | `/api/upload-asset`   | Upload a media file to the project                                               |
+| `GET`    | `/api/list-assets`    | Return a list of all uploaded files                                              |
+| `POST`   | `/api/save-to-file`   | Persist edits to JSON; requires `projectState` and `slug` in the request body   |
 
 <Warning>
   These endpoints are admin-only. The middleware blocks all unauthenticated requests to these routes on Vercel when `ADMIN_PUBLIC_KEY` is configured. Do not expose these routes publicly.

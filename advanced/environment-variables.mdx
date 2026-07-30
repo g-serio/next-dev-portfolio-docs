@@ -1,5 +1,5 @@
 ---
-title: "Environment Variables for next-dev-portfolio"
+title: "Environment Variables for next-dev-portfolio Setup"
 sidebarTitle: "Environment Variables"
 description: "Configure next-dev-portfolio with environment variables to enable Save2Repo, OlonJS Cloud, and admin access protection on your Vercel deployment."
 ---
@@ -48,16 +48,16 @@ At runtime, next-dev-portfolio resolves a *boot source* based on which environme
 
 ### Local (no cloud variables set)
 
-When neither `NEXT_PUBLIC_OLONJS_CLOUD_URL` nor its legacy alias is configured, the site runs in Local mode.
+When neither `NEXT_PUBLIC_OLONJS_CLOUD_URL` nor `NEXT_PUBLIC_OLONJS_API_KEY` (nor their legacy aliases) is configured, the site runs in Local mode.
 
 - Page data is read from the JSON files in `src/data/`
 - Studio edits write directly to those files on disk
 - No network requests are made to any external API
 - Ideal for local development and for forks that don't use OlonJS Cloud
 
-### Save2Repo (`SAVE2REPO=true` + cloud variables)
+### Save2Repo (`NEXT_PUBLIC_OLONJS_SAVE2REPO=true` + cloud variables)
 
-When `NEXT_PUBLIC_OLONJS_SAVE2REPO` is `true` and cloud variables are configured, the site runs in Save2Repo mode.
+When `NEXT_PUBLIC_OLONJS_SAVE2REPO` is `true` and both cloud variables are configured, the site runs in Save2Repo mode.
 
 - Page data is served from the baked static JSON files in `public/`
 - Studio edits are sent to OlonJS Cloud, which commits the updated JSON to your GitHub repository and triggers a new Vercel deployment
@@ -66,7 +66,7 @@ When `NEXT_PUBLIC_OLONJS_SAVE2REPO` is `true` and cloud variables are configured
 
 ### Live (cloud variables set, Save2Repo not enabled)
 
-When cloud variables are configured but `NEXT_PUBLIC_OLONJS_SAVE2REPO` is not `true`, the site runs in Live mode.
+When both cloud variables are configured but `NEXT_PUBLIC_OLONJS_SAVE2REPO` is not `true`, the site runs in Live mode.
 
 - Page data is fetched from the OlonJS Cloud API on each request
 - Studio edits update the cloud data source immediately, without a redeploy

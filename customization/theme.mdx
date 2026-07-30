@@ -1,10 +1,10 @@
 ---
 title: "Customize Colors, Typography, and Spacing in Your Portfolio"
 sidebarTitle: "Theme"
-description: "Edit src/data/config/theme.json to change your portfolio's colors, fonts, border radius, spacing, and light/dark mode tokens."
+description: "Edit src/data/config/theme.json to set your portfolio's visual tokens: dark and light mode colors, font families, border radius values, and layout spacing."
 ---
 
-Your portfolio's entire visual identity — colors, fonts, spacing, and border radius — is controlled by a single file: `src/data/config/theme.json`. The token system inside this file maps directly to CSS custom properties (`--var` declarations) that are generated at build time by `serializeThemeRootCss`. You never need to touch a stylesheet directly; edit the tokens and let the build system handle the rest.
+Your portfolio's entire visual identity — colors, fonts, spacing, and border radius — is controlled by a single file: `src/data/config/theme.json`. The token system inside this file maps directly to CSS custom properties that are generated at build time. You never need to touch a stylesheet directly; edit the tokens and let the build system handle the rest.
 
 ## Where the Theme File Lives
 
@@ -15,7 +15,7 @@ src/
         └── theme.json   ← edit this file
 ```
 
-Open `theme.json` and you'll find a `tokens` object with four top-level sections: `colors`, `typography`, `borderRadius`, `spacing`, and a nested `modes` object for light-mode overrides.
+Open `theme.json` and you'll find a `tokens` object with five top-level sections: `colors`, `typography`, `borderRadius`, `spacing`, and `modes` (which holds light-mode overrides).
 
 ---
 
@@ -32,9 +32,17 @@ The `tokens.colors` object defines the **default (dark mode)** palette. Each key
 | `primary-light` | Lighter tint of the accent, used for hover states |
 | `primary-dark` | Darker shade of the accent, used for pressed states |
 | `card` | Background of card and panel surfaces |
+| `card-foreground` | Text color on card surfaces |
+| `elevated` | Slightly raised surface background (above `card`) |
+| `overlay` | Background for overlays and dropdowns |
+| `secondary` | Secondary surface background |
+| `secondary-foreground` | Text color on secondary surfaces |
 | `muted` | Subtle background for code blocks and secondary panels |
 | `muted-foreground` | De-emphasized text (captions, placeholders, metadata) |
 | `border` | Color of dividers, input borders, and outlines |
+| `border-strong` | Stronger border variant for emphasis |
+| `ring` | Focus ring color |
+| `destructive` | Background or accent for error and destructive actions |
 
 ```json
 "colors": {
@@ -45,9 +53,17 @@ The `tokens.colors` object defines the **default (dark mode)** palette. Each key
   "primary-light": "#6ee7a8",
   "primary-dark": "#22a35c",
   "card": "#111111",
+  "card-foreground": "#e8e8e6",
+  "elevated": "#161616",
+  "overlay": "#1c1c1c",
+  "secondary": "#151515",
+  "secondary-foreground": "#e8e8e6",
   "muted": "#151515",
   "muted-foreground": "#8a8a86",
-  "border": "#242424"
+  "border": "#242424",
+  "border-strong": "#333333",
+  "ring": "#3ddc84",
+  "destructive": "#b33a3a"
 }
 ```
 
@@ -63,7 +79,8 @@ The default colors in `tokens.colors` serve as the **dark mode** palette. Light 
     "colors": {
       "background": "#f7f7f5",
       "foreground": "#121212",
-      "primary": "#0f7a45"
+      "primary": "#0f7a45",
+      "primary-foreground": "#f4fff8"
     }
   }
 }
@@ -205,19 +222,21 @@ To give your portfolio a sharper, more editorial look, reduce all values toward 
 
 ## Spacing Tokens
 
-The `tokens.spacing` object controls three layout-level dimensions that affect the overall density and rhythm of every page.
+The `tokens.spacing` object controls four layout-level dimensions that affect the overall density and rhythm of every page.
 
 | Token | Default | Controls |
 |---|---|---|
 | `container-max` | `1200px` | Maximum width of the content container |
 | `section-y` | `96px` | Vertical padding applied to each page section |
 | `header-h` | `80px` | Height of the sticky header bar |
+| `sidebar-w` | `240px` | Width of any sidebar navigation panel |
 
 ```json
 "spacing": {
   "container-max": "1200px",
   "section-y": "96px",
-  "header-h": "80px"
+  "header-h": "80px",
+  "sidebar-w": "240px"
 }
 ```
 
@@ -243,9 +262,17 @@ Below is the full annotated structure for reference:
       "primary-light": "#6ee7a8",        // lighter accent tint
       "primary-dark": "#22a35c",         // darker accent shade
       "card": "#111111",                 // card / panel backgrounds
-      "muted": "#151515",                // secondary panel backgrounds
+      "card-foreground": "#e8e8e6",      // text on card surfaces
+      "elevated": "#161616",             // raised surface background
+      "overlay": "#1c1c1c",              // overlay / dropdown background
+      "secondary": "#151515",            // secondary surface background
+      "secondary-foreground": "#e8e8e6", // text on secondary surfaces
+      "muted": "#151515",                // subtle secondary panels
       "muted-foreground": "#8a8a86",     // de-emphasized text
-      "border": "#242424"                // dividers and outlines
+      "border": "#242424",               // dividers and outlines
+      "border-strong": "#333333",        // stronger border variant
+      "ring": "#3ddc84",                 // focus ring
+      "destructive": "#b33a3a"           // error / destructive actions
     },
     "typography": {
       "fontFamily": {
@@ -264,14 +291,16 @@ Below is the full annotated structure for reference:
     "spacing": {
       "container-max": "1200px",
       "section-y": "96px",
-      "header-h": "80px"
+      "header-h": "80px",
+      "sidebar-w": "240px"
     },
     "modes": {
       "light": {
         "colors": {
           "background": "#f7f7f5",       // override for light mode
           "foreground": "#121212",
-          "primary": "#0f7a45"
+          "primary": "#0f7a45",
+          "primary-foreground": "#f4fff8"
         }
       }
     }

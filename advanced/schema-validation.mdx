@@ -1,5 +1,5 @@
 ---
-title: "Schema Validation: Type-Safe Content with Zod"
+title: "Schema Validation: Type-Safe Portfolio Content"
 sidebarTitle: "Schema Validation"
 description: "Every page section and collection in next-dev-portfolio is validated by a Zod schema. Learn how schemas protect your content and where to find them."
 ---
@@ -34,17 +34,17 @@ Schemas are co-located with the code they describe, making them easy to find whe
 title: z.string().min(1),
 dek: z.string(),           // Subtitle / deck text
 date: z.string(),          // ISO date string
-readingTime: z.number(),   // In minutes
+readingTime: z.string(),   // Human-readable duration, e.g. "9 min"
 tags: z.array(z.string()),
 body: z.string(),          // Markdown content
-image: z.string().url().optional(),
+image: ImageSelectionSchema.optional(),
 ```
 
 **Project schema** (`src/collections/projects/schema.ts`) includes fields like:
 
 ```typescript
 // Key fields in the project schema
-id: z.string(),
+// (id is provided by BaseCollectionItem)
 title: z.string().min(1),
 subtitle: z.string(),
 year: z.number(),          // Must be a number, not "2024"
@@ -54,7 +54,7 @@ problem: z.string(),
 architecture: z.string(),
 result: z.string(),
 stack: z.array(z.string()),
-image: z.string().url().optional(),
+image: ImageSelectionSchema.optional(),
 tags: z.array(z.string()),
 featured: z.boolean(),
 ```

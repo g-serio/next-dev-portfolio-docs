@@ -122,7 +122,7 @@ You can edit pages in two ways:
 
 ## Complete Example: Editing the Home Page Hero
 
-The example below shows a complete `home.json` with a `home-hero` section. The annotated comments explain each field — remember to remove comments before saving, as JSON does not support them.
+The example below shows a complete `home.json` with all five sections from the default template. The `data` shape for each section type is shown as-is — edit only the field values, not the field names.
 
 ```json
 {
@@ -130,7 +130,7 @@ The example below shows a complete `home.json` with a `home-hero` section. The a
   "slug": "home",
   "meta": {
     "title": "Andrew Linh — Systems Architect & Technical Writer",
-    "description": "Portfolio and editorial site for a backend engineer focused on structured data platforms, schema design, and developer tooling."
+    "description": "Portfolio and editorial site of Andrew Linh. Backend architecture, structured data infrastructure, developer tools, and AI-native systems — written with precision."
   },
   "sections": [
     {
@@ -140,7 +140,7 @@ The example below shows a complete `home.json` with a `home-hero` section. The a
         "label": "Systems architect · technical writer",
         "title": "I design backends that stay honest,",
         "titleHighlight": "then write about why.",
-        "description": "Architecture for structured data platforms, paired with long-form writing on the engineering decisions behind the systems.",
+        "description": "Architecture for structured data platforms, developer tools, and AI-native systems — with the calm of a well-tuned terminal.",
         "primaryCta": {
           "id": "cta-work",
           "label": "View work",
@@ -160,11 +160,14 @@ The example below shows a complete `home.json` with a `home-hero` section. The a
       }
     },
     {
-      "id": "featured-projects-1",
+      "id": "home-featured-1",
       "type": "featured-projects",
       "data": {
-        "heading": "Selected work",
-        "limit": 3
+        "label": "Selected work",
+        "title": "Case studies",
+        "description": "Engagements where schema contracts, type safety, and measurable outcomes mattered.",
+        "limit": 4,
+        "items": { "$ref": "../collections/projects/projects.json" }
       },
       "settings": {
         "paddingTop": "md",
@@ -172,14 +175,47 @@ The example below shows a complete `home.json` with a `home-hero` section. The a
       }
     },
     {
-      "id": "recent-posts-1",
+      "id": "home-posts-1",
       "type": "recent-posts",
       "data": {
-        "heading": "Recent writing",
-        "limit": 4
+        "label": "Writing",
+        "title": "Latest notes",
+        "limit": 3,
+        "items": { "$ref": "../collections/posts/posts.json" }
       },
       "settings": {
         "paddingTop": "md",
+        "paddingBottom": "md"
+      }
+    },
+    {
+      "id": "home-bio-1",
+      "type": "bio-band",
+      "data": {
+        "label": "Briefly",
+        "title": "Precision over performance.",
+        "body": "I spend most of my time on the seams: schemas that bind editors to runtimes, APIs that stay typed end-to-end, and agent tooling you can actually grade.",
+        "image": {
+          "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
+          "alt": "Portrait of a man in a dark shirt looking calmly at the camera"
+        },
+        "cta": { "id": "bio-about", "label": "Full about", "href": "/about", "variant": "secondary" }
+      },
+      "settings": {
+        "paddingTop": "md",
+        "paddingBottom": "md"
+      }
+    },
+    {
+      "id": "home-cta-1",
+      "type": "cta-band",
+      "data": {
+        "title": "Need a calm systems partner?",
+        "description": "Architecture reviews, schema design, and technical writing for teams shipping structured platforms.",
+        "primaryCta": { "id": "cta-contact", "label": "Start a conversation", "href": "/contact", "variant": "primary" }
+      },
+      "settings": {
+        "paddingTop": "lg",
         "paddingBottom": "lg"
       }
     }

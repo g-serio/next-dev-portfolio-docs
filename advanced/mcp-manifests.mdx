@@ -1,5 +1,5 @@
 ---
-title: "MCP Manifests: AI-Readable Portfolio Content"
+title: "MCP Manifests: AI-Readable Portfolio Endpoints"
 sidebarTitle: "MCP Manifests"
 description: "next-dev-portfolio generates MCP manifests for every page, making your portfolio discoverable by AI agents, assistants, and language model tools."
 ---
@@ -19,13 +19,14 @@ This makes your portfolio natively compatible with agent frameworks, AI coding a
 
 ## Manifest Endpoints
 
-Your deployed site exposes three types of manifest endpoints, all served as static files from your CDN:
+Your deployed site exposes four types of manifest endpoints, all served as static files from your CDN:
 
 | Endpoint | Description |
 |---|---|
 | `GET /mcp-manifest.json` | Root index — lists every page with titles, descriptions, and links |
 | `GET /mcp-manifests/{slug}.json` | Per-page manifest — describes the section types for one page |
 | `GET /schemas/{slug}.schema.json` | Per-page JSON Schema — the data contract for a page's content |
+| `GET /llms.txt` | Plain-text site summary for LLM crawlers and AI assistants |
 
 ### Root Manifest
 

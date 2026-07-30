@@ -39,9 +39,14 @@ Every project record must include all of the following fields. The Zod schema wi
 | `architecture` | `string` | Solution paragraph: the technical approach you took |
 | `result` | `string` | Outcome paragraph: measurable or qualitative impact |
 | `stack` | `string[]` | Ordered list of technologies used, shown as tags on the detail page |
-| `image` | `object` | Hero image — requires `url` and `alt` sub-fields |
 | `tags` | `string[]` | Lowercase tag strings used for filtering in the work listing |
 | `featured` | `boolean` | When `true`, the project appears in the `featured-projects` section on the home page |
+
+### Optional Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `image` | `object` | Hero image — requires `url` and `alt` sub-fields |
 
 ### The `role` Field
 
@@ -73,6 +78,8 @@ Setting `featured: true` makes the project eligible to appear in the `featured-p
 
 ### The `image` Object
 
+When provided, the hero image object requires two sub-fields:
+
 | Sub-field | Description |
 |---|---|
 | `url` | Absolute URL to the project hero image. Unsplash works well — append `?w=1600&q=80`. |
@@ -100,11 +107,14 @@ To control how many featured projects appear on the home page, open `src/data/pa
 
 ```json
 {
-  "id": "featured-projects-1",
+  "id": "home-featured-1",
   "type": "featured-projects",
   "data": {
-    "heading": "Selected work",
-    "limit": 3
+    "label": "Selected work",
+    "title": "Case studies",
+    "description": "Engagements where schema contracts, type safety, and measurable outcomes mattered.",
+    "limit": 3,
+    "items": { "$ref": "../collections/projects/projects.json" }
   }
 }
 ```
@@ -158,14 +168,14 @@ The four narrative fields are the heart of each case study. Treat them as short 
     "subtitle": "Schema-driven content publishing for multi-tenant sites",
     "year": 2025,
     "role": "Lead systems architect",
-    "context": "A content platform serving 40+ tenants across three product lines, each with its own editorial team and page templates. The platform had grown organically over four years and had no shared content contracts between teams.",
-    "problem": "Editors published broken pages weekly because the CMS allowed any JSON shape in its page blob field. There was no validation layer, so a missing headline or a misspelled image key would silently produce a blank section in production.",
-    "architecture": "Introduced Zod collection contracts for every section type. Each page section now declares its schema at registration time. The editor form is generated from the schema, so fields can't be left in an invalid state. A build-time validator runs against all stored JSON before any deploy proceeds.",
-    "result": "Publish errors dropped 40% in the first sprint after rollout. The editorial team's support ticket volume fell by half over the following quarter. New section types can now be shipped with their schema and editor form in a single pull request.",
+    "context": "A content platform serving 40+ tenants needed deterministic page assembly without CMS drift or silent field mismatches.",
+    "problem": "Editors published broken pages weekly because free-form JSON and ad-hoc React sections diverged. Publish errors averaged 12% of releases, and rollback windows stretched past two hours.",
+    "architecture": "Introduced Zod collection contracts, keyed collection documents, and section capsules that bind via $ref. Studio inspector surfaces were generated from the same schemas used at render time. CI validated every page and collection against registry schemas before merge.",
+    "result": "Publish errors dropped 40%. Mean time to recover from a bad content release fell from 2.1 hours to 18 minutes. New tenant onboarding time moved from weeks to a two-day scaffold.",
     "stack": ["TypeScript", "Zod", "React", "Vite", "PostgreSQL"],
     "image": {
       "url": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1600&q=80",
-      "alt": "Dark IDE window displaying structured TypeScript schema code"
+      "alt": "Dark IDE with structured code on a widescreen monitor"
     },
     "tags": ["cms", "schemas", "content-infra"],
     "featured": true

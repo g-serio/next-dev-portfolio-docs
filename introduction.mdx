@@ -1,7 +1,7 @@
 ---
 title: "next-dev-portfolio: Schema-Driven Portfolio on Vercel"
 sidebarTitle: "Introduction"
-description: "next-dev-portfolio is a Next.js portfolio template with a built-in CMS, blog, case studies, and one-click Vercel deployment powered by OlonJS."
+description: "next-dev-portfolio is a Next.js 15 portfolio template with a visual CMS, schema-validated content, and one-click Vercel deployment powered by OlonJS."
 ---
 
 **next-dev-portfolio** is a production-ready Next.js 15 portfolio template built for developers who want a professional online presence without wrestling with a database, a headless CMS subscription, or bespoke deployment pipelines. Everything — your bio, case studies, blog posts, and contact details — lives in plain JSON files inside your own GitHub repository, validated by Zod schemas and rendered by a modern React front end. Deploy it to Vercel in a single click, then edit your content visually through the built-in Studio CMS at `/admin`. Every save commits straight back to your repo.
@@ -71,25 +71,37 @@ Browser → /admin → @olonjs/studio UI → JSON file patch → Save2Repo commi
 
 ## How Content Works
 
-All editable content lives in `src/data/` as JSON files. Each file corresponds to a page section or a content collection:
+All editable content lives in `src/data/` as JSON files, organised into three subdirectories:
 
 ```
 src/data/
-├── site.json          # Global site metadata
-├── home.json          # Hero, skills, featured items
-├── about.json         # Bio, timeline, stack
-├── work/
-│   └── *.json         # One file per case study
-├── blog/
-│   └── *.json         # One file per blog post
-└── contact.json       # Contact page copy
+├── pages/
+│   ├── home.json          # Hero, skills, featured items
+│   ├── about.json         # Bio, timeline, stack
+│   ├── blog.json          # Blog index page
+│   ├── blog/
+│   │   └── [slug].json    # Individual blog post template
+│   ├── work.json          # Case study index page
+│   ├── work/
+│   │   └── [slug].json    # Individual case study template
+│   └── contact.json       # Contact page copy
+├── collections/
+│   ├── posts/
+│   │   └── posts.json     # Blog post entries
+│   └── projects/
+│       └── projects.json  # Case study entries
+└── config/
+    ├── site.json          # Global site metadata and social URLs
+    ├── menu.json          # Navigation structure
+    └── theme.json         # Design tokens and colour palette
 ```
 
-During the build (`npm run build`), the OlonJS prebuild pipeline:
+During the build (`npm run build`), the OlonJS prebuild pipeline runs automatically:
 
-1. **Validates** every file against its Zod schema — the build fails if any field is invalid or missing.
-2. **Bakes** the validated data to `public/data/` so static pages can fetch it at runtime without a server.
-3. **Generates** `sitemap.xml`, `robots.txt`, `llms.txt`, and JSON-LD metadata from the content.
+1. **Syncs** page definitions from `src/data/pages/` to `public/pages/` so the visitor site can serve them over HTTP.
+2. **Validates** every file against its Zod schema — the build fails if any field is invalid or missing.
+3. **Bakes** the validated data to `public/data/` so static pages can fetch it at runtime without a server.
+4. **Generates** `sitemap.xml`, `robots.txt`, `llms.txt`, and JSON-LD metadata from the content.
 
 Because schemas are enforced at build time, you always know exactly what shape your data is in. There is no silent content drift.
 
@@ -100,7 +112,7 @@ When you edit content in Studio on your deployed Vercel site, the following happ
 ```
 Studio UI (edit field)
   → @olonjs/core patches the in-memory JSON object
-  → @olonjs/next writes the updated JSON to a Vercel API route
+  → POST /api/save-to-file (Next.js API route, admin-protected)
   → Save2Repo integration commits the file to your GitHub repo
   → Vercel detects the new commit and triggers a redeployment
   → Your live site reflects the change within ~30 seconds
@@ -111,6 +123,22 @@ This means Studio edits are **never lost**. Every save is a real Git commit with
 <Tip>
   Because Save2Repo writes directly to your default branch, you can also open the JSON files in your editor, make changes, and push — Studio and your codebase stay in sync automatically.
 </Tip>
+
+## Public API Endpoints
+
+next-dev-portfolio exposes a set of public HTTP endpoints that you can query directly, use in integrations, or reference from AI agents.
+
+| Endpoint | Access | Description |
+|---|---|---|
+| `GET /pages/:path*.json` | Public | Returns the full page JSON bundle for the given route slug (e.g. `/pages/about.json`). |
+| `GET /mcp-manifest.json` | Public | Site-level MCP manifest index listing all pages and their manifest hrefs. |
+| `GET /mcp-manifests/:slug.json` | Public | Page-level MCP manifest exposing available tools for a specific page. |
+| `GET /schemas/:slug.schema.json` | Public | JSON Schema for a specific page, used by Studio and AI agents for type-safe edits. |
+| `GET /sitemap.xml` | Public | Auto-generated sitemap for all public routes. |
+| `GET /llms.txt` | Public | Plain-text index of your portfolio content for LLM and AI agent discovery. |
+| `POST /api/save-to-file` | Admin only | Commits a JSON patch back to the repository via Save2Repo. Requires authentication when `ADMIN_PUBLIC_KEY` is set. |
+| `POST /api/upload-asset` | Admin only | Uploads an image asset to the repository. Requires authentication when `ADMIN_PUBLIC_KEY` is set. |
+| `GET /api/list-assets` | Admin only | Lists uploaded image assets. Requires authentication when `ADMIN_PUBLIC_KEY` is set. |
 
 ## TypeScript End-to-End
 

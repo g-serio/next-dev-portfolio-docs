@@ -21,7 +21,7 @@ Your portfolio's global identity — name, header logo, footer copy, social link
 
 ## `src/data/config/site.json`
 
-This file holds three top-level keys: `identity`, `header`, and `footer`.
+This file holds three top-level keys: `identity`, `header`, and `footer`. The `header` and `footer` keys are full section objects — they have their own `id`, `type`, `data`, and `settings` sub-keys that the renderer uses to assemble the global shell.
 
 ### `identity`
 
@@ -39,21 +39,34 @@ The `identity` object stores your name or site title — used in the document `<
 
 ### `header`
 
-The `header` object configures the site-wide top bar that appears on every page.
+The `header` key is a section object. Its `data` sub-object configures the logo, and its `settings` sub-object controls sticky behaviour.
+
+#### `header.data` fields
 
 | Field | Type | Description |
 |---|---|---|
 | `logoText` | `string` | Full text rendered beside the logo mark, e.g. your name |
 | `logoHighlight` | `string` | Abbreviated initials shown inside the logo mark (e.g. `"AL"` for Andrew Linh) |
+| `menu` | `object` | Reference to the main nav array in `menu.json` — use `{ "$ref": "../config/menu.json#/main" }` |
+
+#### `header.settings` fields
+
+| Field | Type | Description |
+|---|---|---|
 | `sticky` | `boolean` | When `true`, the header stays fixed at the top of the viewport on scroll |
 
 The `logoHighlight` field is the short identifier that appears in the coloured logo tile. Use two or three characters — typically your initials.
 
 ```json
 "header": {
-  "logoText": "Andrew Linh",
-  "logoHighlight": "AL",
-  "sticky": true
+  "id": "global-header",
+  "type": "header",
+  "data": {
+    "logoText": "Andrew Linh",
+    "logoHighlight": "AL",
+    "menu": { "$ref": "../config/menu.json#/main" }
+  },
+  "settings": { "sticky": true }
 }
 ```
 
@@ -63,18 +76,22 @@ The `logoHighlight` field is the short identifier that appears in the coloured l
 
 ### `footer`
 
-The `footer` object controls the bottom-of-page section rendered on every page.
+The `footer` key is also a section object. Its `data` sub-object controls all footer content including brand text, description, copyright, navigation links, and social icons.
+
+#### `footer.data` fields
 
 | Field | Type | Description |
 |---|---|---|
-| `brand` | `string` | Short brand name or tagline shown at the top of the footer |
+| `brandText` | `string` | Short brand name shown at the top of the footer |
+| `brandHighlight` | `string` | Tagline or descriptor rendered alongside the brand name |
 | `description` | `string` | One or two sentences describing what you do |
-| `copyright` | `string` | Copyright line, e.g. `"© 2026 Andrew Linh"` |
-| `socials` | `array` | Array of social link objects (see below) |
+| `copyright` | `string` | Copyright line, e.g. `"© 2026 Andrew Linh."` |
+| `menu` | `object` | Reference to the footer nav array in `menu.json` — use `{ "$ref": "../config/menu.json#/footer" }` |
+| `social` | `array` | Array of social link objects (see below) |
 
 #### Social Links
 
-Each entry in the `socials` array has four fields:
+Each entry in the `social` array has four fields:
 
 | Field | Type | Description |
 |---|---|---|
@@ -85,29 +102,36 @@ Each entry in the `socials` array has four fields:
 
 ```json
 "footer": {
-  "brand": "Andrew Linh",
-  "description": "Backend systems and long-form writing on the decisions behind them.",
-  "copyright": "© 2026 Andrew Linh. All rights reserved.",
-  "socials": [
-    {
-      "id": "social-github",
-      "label": "GitHub",
-      "href": "https://github.com/andrew-linh",
-      "icon": "github"
-    },
-    {
-      "id": "social-linkedin",
-      "label": "LinkedIn",
-      "href": "https://linkedin.com/in/andrew-linh",
-      "icon": "linkedin"
-    },
-    {
-      "id": "social-rss",
-      "label": "RSS Feed",
-      "href": "/feed.xml",
-      "icon": "rss"
-    }
-  ]
+  "id": "global-footer",
+  "type": "footer",
+  "data": {
+    "brandText": "Andrew Linh",
+    "brandHighlight": "systems · writing",
+    "description": "Systems architect and technical writer. Backend architectures, structured data infrastructure, developer tools, and AI-native systems.",
+    "copyright": "© 2026 Andrew Linh.",
+    "menu": { "$ref": "../config/menu.json#/footer" },
+    "social": [
+      {
+        "id": "gh",
+        "label": "GitHub",
+        "href": "https://github.com/andrewlinh",
+        "icon": "github"
+      },
+      {
+        "id": "li",
+        "label": "LinkedIn",
+        "href": "https://linkedin.com/in/andrewlinh",
+        "icon": "linkedin"
+      },
+      {
+        "id": "rss",
+        "label": "RSS",
+        "href": "/blog/rss.xml",
+        "icon": "rss"
+      }
+    ]
+  },
+  "settings": { "showLogo": true }
 }
 ```
 
@@ -123,34 +147,31 @@ Each entry in the `socials` array has four fields:
     "title": "Andrew Linh"
   },
   "header": {
-    "logoText": "Andrew Linh",
-    "logoHighlight": "AL",
-    "sticky": true
+    "id": "global-header",
+    "type": "header",
+    "data": {
+      "logoText": "Andrew Linh",
+      "logoHighlight": "AL",
+      "menu": { "$ref": "../config/menu.json#/main" }
+    },
+    "settings": { "sticky": true }
   },
   "footer": {
-    "brand": "Andrew Linh",
-    "description": "Backend systems and long-form writing on the decisions behind them.",
-    "copyright": "© 2026 Andrew Linh. All rights reserved.",
-    "socials": [
-      {
-        "id": "social-github",
-        "label": "GitHub",
-        "href": "https://github.com/andrew-linh",
-        "icon": "github"
-      },
-      {
-        "id": "social-linkedin",
-        "label": "LinkedIn",
-        "href": "https://linkedin.com/in/andrew-linh",
-        "icon": "linkedin"
-      },
-      {
-        "id": "social-rss",
-        "label": "RSS Feed",
-        "href": "/feed.xml",
-        "icon": "rss"
-      }
-    ]
+    "id": "global-footer",
+    "type": "footer",
+    "data": {
+      "brandText": "Andrew Linh",
+      "brandHighlight": "systems · writing",
+      "description": "Systems architect and technical writer. Backend architectures, structured data infrastructure, developer tools, and AI-native systems.",
+      "copyright": "© 2026 Andrew Linh.",
+      "menu": { "$ref": "../config/menu.json#/footer" },
+      "social": [
+        { "id": "gh",  "label": "GitHub",   "href": "https://github.com/andrewlinh",          "icon": "github"   },
+        { "id": "li",  "label": "LinkedIn",  "href": "https://linkedin.com/in/andrewlinh",     "icon": "linkedin" },
+        { "id": "rss", "label": "RSS",       "href": "/blog/rss.xml",                          "icon": "rss"      }
+      ]
+    },
+    "settings": { "showLogo": true }
   }
 }
 ```
@@ -172,13 +193,13 @@ The `main` array controls which links appear in the site header. Items render in
 | `href` | `string` | URL path or absolute URL |
 | `isCta` | `boolean` _(optional)_ | When `true`, the item renders as a styled CTA button instead of a plain link |
 
-Use `isCta: true` on one item — typically a "Get in touch" or "Hire me" link — to create a visual call-to-action in the nav bar.
+Use `isCta: true` on one item — typically a "Contact" link — to create a visual call-to-action in the nav bar.
 
 ```json
 "main": [
-  { "id": "nav-work",    "label": "Work",    "href": "/work"    },
-  { "id": "nav-blog",    "label": "Writing", "href": "/blog"    },
   { "id": "nav-about",   "label": "About",   "href": "/about"   },
+  { "id": "nav-work",    "label": "Work",    "href": "/work"    },
+  { "id": "nav-blog",    "label": "Blog",    "href": "/blog"    },
   { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
 ]
 ```
@@ -189,10 +210,10 @@ The `footer` array defines the link row in the site footer. It follows the same 
 
 ```json
 "footer": [
-  { "id": "footer-work",    "label": "Work",    "href": "/work"    },
-  { "id": "footer-blog",    "label": "Writing", "href": "/blog"    },
-  { "id": "footer-about",   "label": "About",   "href": "/about"   },
-  { "id": "footer-contact", "label": "Contact", "href": "/contact" }
+  { "id": "ft-work",    "label": "Work",    "href": "/work"         },
+  { "id": "ft-blog",    "label": "Blog",    "href": "/blog"         },
+  { "id": "ft-contact", "label": "Contact", "href": "/contact"      },
+  { "id": "ft-rss",     "label": "RSS",     "href": "/blog/rss.xml" }
 ]
 ```
 
@@ -201,16 +222,16 @@ The `footer` array defines the link row in the site footer. It follows the same 
 ```json
 {
   "main": [
-    { "id": "nav-work",    "label": "Work",    "href": "/work"    },
-    { "id": "nav-blog",    "label": "Writing", "href": "/blog"    },
     { "id": "nav-about",   "label": "About",   "href": "/about"   },
+    { "id": "nav-work",    "label": "Work",    "href": "/work"    },
+    { "id": "nav-blog",    "label": "Blog",    "href": "/blog"    },
     { "id": "nav-contact", "label": "Contact", "href": "/contact", "isCta": true }
   ],
   "footer": [
-    { "id": "footer-work",    "label": "Work",    "href": "/work"    },
-    { "id": "footer-blog",    "label": "Writing", "href": "/blog"    },
-    { "id": "footer-about",   "label": "About",   "href": "/about"   },
-    { "id": "footer-contact", "label": "Contact", "href": "/contact" }
+    { "id": "ft-work",    "label": "Work",    "href": "/work"         },
+    { "id": "ft-blog",    "label": "Blog",    "href": "/blog"         },
+    { "id": "ft-contact", "label": "Contact", "href": "/contact"      },
+    { "id": "ft-rss",     "label": "RSS",     "href": "/blog/rss.xml" }
   ]
 }
 ```

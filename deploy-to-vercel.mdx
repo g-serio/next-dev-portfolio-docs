@@ -34,17 +34,15 @@ When you click the deploy button, Vercel performs the following steps in order:
   </Step>
 
   <Step title="Runs the Prebuild Pipeline">
-    Before the Next.js build starts, the OlonJS prebuild pipeline runs:
+    Before the Next.js build starts, the OlonJS prebuild pipeline runs as part of `npm run build`. It executes the following steps in order:
 
-    ```bash
-    # Executed automatically by the build command
-    npx olonjs sync-pages    # Syncs route definitions from content schemas
-    npx olonjs bake          # Validates JSON via Zod and writes to public/data/
-    npx olonjs gen-sitemap   # Generates public/sitemap.xml and public/robots.txt
-    npx olonjs gen-llms      # Generates public/llms.txt for AI agent discovery
-    ```
+    1. **Sync pages** — Copies page definitions from `src/data/pages/` to `public/pages/` so they can be served as static JSON.
+    2. **Generate llms.txt** — Produces `public/llms.txt` for AI agent and LLM discovery.
+    3. **Bake** — Validates every JSON file in `src/data/` against its Zod schema and writes the output to `public/`.
+    4. **Generate sitemap** — Produces `public/sitemap.xml` from your page definitions.
+    5. **Generate robots.txt** — Writes `public/robots.txt`.
 
-    If any JSON file in `src/data/` fails Zod validation, the prebuild exits with a non-zero code and the Vercel deployment is cancelled with a clear error message.
+    If any JSON file fails Zod validation, the prebuild exits with a non-zero code and the Vercel deployment is cancelled with a clear error message in the build logs.
   </Step>
 
   <Step title="Builds and Deploys the Next.js App">
@@ -63,7 +61,7 @@ You edit a field in Studio (/admin)
   ↓
 @olonjs/studio patches the JSON object in memory
   ↓
-POST /api/olonjs/save  (Next.js API route)
+POST /api/save-to-file  (admin-protected Next.js API route)
   ↓
 Save2Repo integration authenticates with GitHub
   ↓
@@ -102,6 +100,24 @@ To add or update environment variables, go to your project in the Vercel dashboa
 <Info>
   `VERCEL_ENV` is injected automatically by Vercel on all deployments (values: `production`, `preview`, or `development`). next-dev-portfolio uses it to distinguish between local dev (where Studio is always open) and deployed instances (where `ADMIN_PUBLIC_KEY` is enforced).
 </Info>
+
+---
+
+## Public API Endpoints
+
+Every deployed next-dev-portfolio site exposes the following endpoints. The public endpoints are fully cacheable and require no authentication. The admin endpoints are protected by the middleware when `ADMIN_PUBLIC_KEY` is set.
+
+| Endpoint | Access | Description |
+|---|---|---|
+| `GET /pages/:path*.json` | Public | Full page JSON bundle for a given route slug (e.g. `/pages/about.json`). |
+| `GET /mcp-manifest.json` | Public | Site-level MCP manifest index listing all pages and their manifest hrefs. |
+| `GET /mcp-manifests/:slug.json` | Public | Page-level MCP manifest exposing available tools for a specific page. |
+| `GET /schemas/:slug.schema.json` | Public | JSON Schema for a specific page, used by Studio and AI agents for type-safe edits. |
+| `GET /sitemap.xml` | Public | Auto-generated sitemap for all public routes. |
+| `GET /llms.txt` | Public | Plain-text index of your portfolio content for LLM and AI agent discovery. |
+| `POST /api/save-to-file` | Admin only | Commits a JSON patch back to the repository via Save2Repo. |
+| `POST /api/upload-asset` | Admin only | Uploads an image asset to the repository. |
+| `GET /api/list-assets` | Admin only | Lists uploaded image assets available in the repository. |
 
 ---
 

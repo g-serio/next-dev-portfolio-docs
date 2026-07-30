@@ -1,5 +1,5 @@
 ---
-title: "Get Started with next-dev-portfolio on Vercel"
+title: "Launch Your Portfolio with next-dev-portfolio on Vercel"
 sidebarTitle: "Quickstart"
 description: "Deploy a fully functional developer portfolio to Vercel in under five minutes using next-dev-portfolio and the OlonJS Save2Repo integration."
 ---
@@ -28,7 +28,7 @@ The fastest way to launch your portfolio is the one-click Vercel deploy. Vercel 
   <Step title="Wait for the Build to Complete">
     Vercel runs the full build pipeline automatically:
 
-    1. **Prebuild** — OlonJS syncs page schemas, validates all JSON files in `src/data/`, and bakes the output to `public/data/`.
+    1. **Prebuild** — OlonJS syncs page schemas, validates all JSON files in `src/data/`, and bakes the output to `public/`.
     2. **Asset generation** — `sitemap.xml`, `robots.txt`, `llms.txt`, and JSON-LD metadata are written to `public/`.
     3. **Next.js build** — Pages are statically generated and bundled for the edge.
 
@@ -60,7 +60,8 @@ The fastest way to launch your portfolio is the one-click Vercel deploy. Vercel 
 
     ```
     Studio form submit
-      → @olonjs/core patches src/data/home.json
+      → @olonjs/core patches src/data/pages/home.json
+      → POST /api/save-to-file (admin-protected API route)
       → Save2Repo commits the updated file to your GitHub repo
       → Vercel detects the commit and starts a new deployment
       → Your live site reflects the change in ~30 seconds
@@ -76,8 +77,8 @@ The fastest way to launch your portfolio is the one-click Vercel deploy. Vercel 
   <Step title="Next Steps">
     Your portfolio is live and editable. Here are the most common customisations to tackle next:
 
-    - **Theme** — Edit `src/styles/theme.css` (or the Tailwind config) to match your personal brand colours and typography.
-    - **Navigation** — Update `src/data/site.json` to change the nav links, site title, and social URLs.
+    - **Theme** — Edit `src/data/config/theme.json` to match your personal brand colours and typography.
+    - **Navigation** — Update `src/data/config/site.json` to change the nav links, site title, and social URLs.
     - **Content** — Use Studio to fill in your real bio, work history, projects, and blog posts.
     - **Custom domain** — Add your own domain in the Vercel dashboard under **Settings → Domains**. See [Deploy to Vercel](/deploy-to-vercel) for details.
   </Step>
@@ -87,7 +88,7 @@ The fastest way to launch your portfolio is the one-click Vercel deploy. Vercel 
 
 ## Local Development
 
-You can also run next-dev-portfolio on your machine for code-level customisation. Clone the repository that Vercel created in your GitHub account — this is your own fork, not the original template.
+You can also run next-dev-portfolio on your machine for code-level customisation. Clone the repository that Vercel created in your GitHub account — this is your own copy, not the original template.
 
 <Steps>
   <Step title="Clone Your Repository">

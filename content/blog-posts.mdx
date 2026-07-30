@@ -36,6 +36,11 @@ Every post record must include all of the following fields. The Zod schema will 
 | `readingTime` | `string` | Human-readable estimate, e.g. `"9 min"` |
 | `tags` | `string[]` | Array of lowercase tag strings used for filtering |
 | `body` | `string` | Full post content in Markdown (GitHub-flavored) |
+
+### Optional Fields
+
+| Field | Type | Description |
+|---|---|---|
 | `image` | `object` | Cover image — requires `url` and `alt` sub-fields |
 
 ### The `body` Field
@@ -56,7 +61,7 @@ Write the Markdown as a JSON string, using `\n` for newlines and `\n\n` for para
 
 ### The `image` Object
 
-Each post requires a cover image object with two sub-fields:
+When provided, the cover image object requires two sub-fields:
 
 | Sub-field | Description |
 |---|---|
@@ -91,11 +96,13 @@ To change how many posts appear in the home page teaser, open `src/data/pages/ho
 
 ```json
 {
-  "id": "recent-posts-1",
+  "id": "home-posts-1",
   "type": "recent-posts",
   "data": {
-    "heading": "Recent writing",
-    "limit": 4
+    "label": "Writing",
+    "title": "Latest notes",
+    "limit": 4,
+    "items": { "$ref": "../collections/posts/posts.json" }
   }
 }
 ```
@@ -159,11 +166,11 @@ Delete the entire key-value pair from `posts.json`, then rebuild. The post will 
   "schema-driven-content": {
     "id": "schema-driven-content",
     "title": "Schema-driven content is the missing layer",
-    "dek": "Why treating page sections as typed contracts beats free-form CMS blobs.",
+    "dek": "Why treating page sections as typed contracts beats free-form CMS blobs for multi-tenant sites.",
     "date": "2026-03-12",
     "readingTime": "9 min",
     "tags": ["schemas", "cms", "content-infra"],
-    "body": "## The quiet failure mode\n\nMost content platforms fail the same way: a free-form blob field that grows until nobody knows what lives inside it.\n\n## Typed contracts as the fix\n\nWhen every section has a Zod schema, the editor *cannot* publish a page with a missing headline. The contract is the documentation.\n\n```typescript\nconst HeroSchema = z.object({\n  title: z.string(),\n  titleHighlight: z.string(),\n  description: z.string()\n});\n```\n\n## The result\n\nPublish errors dropped 40% in the first sprint after we introduced collection schemas.",
+    "body": "## The quiet failure mode\n\nMost content platforms fail the same way: the editor UI drifts from the renderer, and nobody notices until a publish breaks production.\n\n## Contracts over conventions\n\nSchema-driven content means every section, collection item, and form submission has a Zod contract shared by Studio, CI, and runtime.\n\n## The payoff\n\nYou trade a little authoring friction for operational calm. Publish errors become schema errors you can fix before merge.",
     "image": {
       "url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&q=80",
       "alt": "Laptop showing structured documents on a dark background"
