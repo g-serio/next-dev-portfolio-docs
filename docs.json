@@ -63,5 +63,14 @@
         ]
       }
     ]
+  },
+  "markdown": {
+    "schema": true
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff",
+      "dark": "#050505"
+    }
   }
 }
