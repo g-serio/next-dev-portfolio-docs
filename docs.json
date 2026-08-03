@@ -7,7 +7,10 @@
     "light": "#ffffff",
     "dark": "#cdcdcd"
   },
-  "favicon": "https://media.brand.dev/21a6171c-cdfe-48e3-bd45-09d200a98b6a.png",
+  "favicon": {
+    "light": "https://media.brand.dev/21a6171c-cdfe-48e3-bd45-09d200a98b6a.png",
+    "dark": "/images/favicon.svg"
+  },
   "navbar": {
     "primary": {
       "type": "github",
@@ -72,5 +75,10 @@
       "light": "#ffffff",
       "dark": "#050505"
     }
+  },
+  "logo": {
+    "light": "/images/olon-mark-light-512.png",
+    "dark": "/images/olon-mark-mono-light-512.png",
+    "href": "https://docs.olonjs.com"
   }
 }
