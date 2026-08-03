@@ -80,5 +80,15 @@
     "light": "/images/olon-mark-mono-light-512.png",
     "dark": "/images/olon-mark-mono-dark-512.png",
     "href": "https://docs.olonjs.com"
+  },
+  "contextual": {
+    "options": [
+      "claude",
+      "chatgpt",
+      "aistudio",
+      "cursor",
+      "mcp"
+    ],
+    "display": "header"
   }
 }
