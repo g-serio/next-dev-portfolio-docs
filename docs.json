@@ -74,12 +74,13 @@
     "color": {
       "light": "#ffffff",
       "dark": "#050505"
-    }
+    },
+    "decoration": "grid"
   },
   "logo": {
     "light": "/images/olon-mark-mono-light-512.png",
     "dark": "/images/olon-mark-mono-dark-512.png",
-    "href": "https://docs.olonjs.com"
+    "href": "https://www.olonjs.com"
   },
   "contextual": {
     "options": [
@@ -90,5 +91,11 @@
       "mcp"
     ],
     "display": "header"
+  },
+  "icons": {
+    "library": "tabler"
+  },
+  "appearance": {
+    "default": "dark"
   }
 }
