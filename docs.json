@@ -64,6 +64,17 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog/2026-08-14-launch"
+            ]
+          }
+        ]
       }
     ]
   },
